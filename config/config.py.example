@@ -1,0 +1,27 @@
+from dataclasses import dataclass
+
+owners = [ # Replace this ID with your own ID
+    12345
+    ]
+
+prefix_limit = 25 # How many prefixes a guild can have, the bigger the number and the more prefixes a guild has: the more the bot lags and has to process on every single message sent.
+
+
+error_channel =  12345 # This is the ID of the channel where the bot will log errors
+output_channel = 12345 # This is the ID of the channel where the bot will log all non-error output
+
+@dataclass
+class DBConfig:
+    host = "localhost"
+    port = 3306
+    user: str
+    password: str
+    database: str
+    pool_size = 20
+
+@dataclass
+class BotConfig:
+    token: str = open("config/token.txt").read()
+    error_channel: int = error_channel
+    output_channel: int = output_channel
+    api_url: str = "http://localhost:4004/api" # This is the URL leading to the bots API

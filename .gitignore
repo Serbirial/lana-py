@@ -1,0 +1,10 @@
+
+*.pyc
+dis_command/
+.vscode/
+config/db.json
+config/*token*.txt
+config/wip_schema.sql
+config/config.py
+private/
+cogs/eval.py

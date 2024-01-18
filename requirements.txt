@@ -1,0 +1,7 @@
+discord.py
+psutil
+git+https://github.com/Rapptz/discord-ext-menus
+unidecode
+mariadb
+sanic[ext]	
+redis
