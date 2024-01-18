@@ -8,10 +8,11 @@ blueprint = Blueprint('API', url_prefix="/api")
 # NOTE: Currently done endpoints: logging, welcoming, autorole, prefix
 
 table_data = { # Contains queries to populate tables based on their name
-	"logging": "INSERT INTO logging (guild, enabled) VALUES (?,0)",
-	"welcome": "INSERT INTO welcome (guild, enabled) VALUES (?,0)",
-	"panic":   "INSERT INTO panic (guild, enabled) VALUES (?,0)",
-	"antialt": "INSERT INTO antialt (guild, enabled) VALUES (?,0)"
+	"logging": 		  "INSERT INTO logging (guild, enabled) VALUES (?,0)",
+	"welcome": 		  "INSERT INTO welcome (guild, enabled) VALUES (?,0)",
+	"panic":   		  "INSERT INTO panic (guild, enabled) VALUES (?,0)",
+	"antialt": 		  "INSERT INTO antialt (guild, enabled) VALUES (?,0)",
+	"premium_points": "INSERT INTO premium_points (user_id, points) VALUES (?,0)"
 }
 async def populate_table(db, table, *args):
 	db.execute(table_data[table], *args)
@@ -324,3 +325,13 @@ async def antinuke_actions(request, guild):
 
 	if not check:
 		return json({"op": "Void."}) # Doesnt exist.
+
+##########################################################
+
+@blueprint.post("/premium/<user:int>/points", strict_slashes=True)
+async def antinuke_toggle(request, user):
+	check = request.app.ctx.db.query_row("SELECT points FROM premium_points WHERE user_id = ?", user)
+	if check == None:
+			await populate_table(request.app.ctx.db, "premium_points", user)
+			return json({"op": 0})
+	return json({"op": int(check)})

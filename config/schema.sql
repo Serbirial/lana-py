@@ -108,6 +108,13 @@ CREATE TABLE IF NOT EXISTS premium (
   PRIMARY KEY (user_id)
 );
 
+CREATE TABLE IF NOT EXISTS premium_points (
+  user_id bigint unsigned NOT NULL,
+  points bigint unsigned NOT NULL DEFAULT 0,
+
+  PRIMARY KEY (user_id)
+);
+
 CREATE TABLE IF NOT EXISTS oauth_identification (
   user_id bigint unsigned NOT NULL,
   access_token varchar(255) NOT NULL,
