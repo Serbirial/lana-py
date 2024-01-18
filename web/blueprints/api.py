@@ -338,7 +338,7 @@ async def premium_points(request, user):
 	return json({"op": int(check)})
 
 @blueprint.post("/premium/points/add/<user:int>", strict_slashes=True)
-async def premium_points(request, user):
+async def premium_points_add(request, user):
 	_json = request.json
 	if not _json or not "op" in _json:
 		return json({"op": "Missing JSON."})
