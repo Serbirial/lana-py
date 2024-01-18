@@ -350,4 +350,6 @@ async def premium_points_add(request, user):
 	check = request.app.ctx.db.query_row("SELECT points FROM premium_points WHERE user_id = ?", user)
 	if check == None:
 		request.app.ctx.db.execute("INSERT INTO premium_points (user_id, points) VALUES (?,?)", user, points)
-		return json({"op": True})
+	else:
+		request.app.ctx.db.execute("UPDATE premium_points SET points = ? WHERE user_id = ?", check+points, user)
+	return json({"op": True})
