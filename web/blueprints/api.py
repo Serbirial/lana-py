@@ -329,7 +329,7 @@ async def antinuke_actions(request, guild):
 ##########################################################
 
 @blueprint.post("/premium/<user:int>/points", strict_slashes=True)
-async def antinuke_toggle(request, user):
+async def premium_points(request, user):
 	check = request.app.ctx.db.query_row("SELECT points FROM premium_points WHERE user_id = ?", user)
 	if check == None:
 			await populate_table(request.app.ctx.db, "premium_points", user)
