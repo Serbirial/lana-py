@@ -106,8 +106,8 @@ class LanaAR(AutoShardedClient):
 		print("Done __INIT__, waiting for ON_READY")
 
 		# DONT TOUCH
-		self.__at_limit:       list = []
-		self.__at_panic_limit: list = []
+		self._at_limit:       list = []
+		self._at_panic_limit: list = []
 
 
 	async def timed_remove_from_hardlimit(self, guild: int) -> None:
@@ -117,7 +117,7 @@ class LanaAR(AutoShardedClient):
 			guild (int): The guild ID.
 		"""        
 		await asyncio.sleep(25)
-		self.__at_limit.remove(guild)
+		self._at_limit.remove(guild)
 
 	async def timed_remove_from_panic(self, guild: int) -> None:
 		"""Removes a guild from the panic, allowing the bot to stop muting people who send messages.
@@ -126,7 +126,7 @@ class LanaAR(AutoShardedClient):
 			guild (int): The guild ID.
 		"""        
 		await asyncio.sleep(8)
-		self.__at_panic_limit.remove(guild)
+		self._at_panic_limit.remove(guild)
 
 
 	async def get_color(self) -> int:
