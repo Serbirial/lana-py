@@ -178,7 +178,7 @@ class LanaAR(AutoShardedClient):
 			message = args[0]
 			if not hasattr(message, "guild") or message.guild == None: # DMs not allowed
 				return
-			if message.guild.id in self.__at_limit:
+			if message.guild.id in self._at_limit:
 				return
 			if antilock and antilock.overloaded(self, message): # This is private code, you will have to implement this yourself.
 				return
