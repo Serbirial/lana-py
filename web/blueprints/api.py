@@ -328,10 +328,26 @@ async def antinuke_actions(request, guild):
 
 ##########################################################
 
-@blueprint.post("/premium/<user:int>/points", strict_slashes=True)
+@blueprint.post("/premium/points/<user:int>", strict_slashes=True)
 async def premium_points(request, user):
 	check = request.app.ctx.db.query_row("SELECT points FROM premium_points WHERE user_id = ?", user)
 	if check == None:
 			await populate_table(request.app.ctx.db, "premium_points", user)
 			return json({"op": 0})
+
 	return json({"op": int(check)})
+
+@blueprint.post("/premium/points/add/<user:int>", strict_slashes=True)
+async def premium_points(request, user):
+	_json = request.json
+	if not _json or not "op" in _json:
+		return json({"op": "Missing JSON."})
+	try:
+		points = int(_json["op"])
+	except:
+		return json({"op": -1}) # -1 is code for a general conversion error.
+
+	check = request.app.ctx.db.query_row("SELECT points FROM premium_points WHERE user_id = ?", user)
+	if check == None:
+		request.app.ctx.db.execute("INSERT INTO premium_points (user_id, points) VALUES (?,?)", user, points)
+		return json({"op": True})
