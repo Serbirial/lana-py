@@ -39,7 +39,7 @@ class Response:
 
 		return new_cls
 
-	def expect_json_key(self, key: str) -> Self | JsonError:
+	def expect_json_key(self, key: str, return_found = False) -> Self | JsonError:
 		"""Expects the responses JSON to contain a given key
 
 		Args:
@@ -53,6 +53,8 @@ class Response:
 		"""		
 		if key not in self.json.keys():
 			raise JsonError("Expected JSON key differs from returned JSON key.")
+		if return_found:
+			return self.json[key]
 		return self # Allow for chaining
 
 	def expect_json_keys(self, keys: list | set) -> Self | JsonError:
