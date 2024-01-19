@@ -57,7 +57,7 @@ class Config(cogs.Cog):
 	@modlist.command("add", "add")
 	async def modadd(self, bot, ctx, member: discord.Member):
 		''' Add a new mod. '''
-		await permissions.check_permissions(ctx, manage_roles=True)
+		await permissions.check_permissions(ctx, manage_server=True)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 		member = await bot.converter.member(ctx, member)
 
@@ -75,7 +75,7 @@ class Config(cogs.Cog):
 	@modlist.command("remove", "remove")
 	async def modremove(self, bot, ctx, member: discord.Member):
 		''' Remove a mod from the list. '''
-		await permissions.check_permissions(ctx, manage_roles=True)
+		await permissions.check_permissions(ctx, manage_server=True)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 		member = await bot.converter.member(ctx, member)
 
@@ -87,7 +87,7 @@ class Config(cogs.Cog):
 	@modlist.command("get", "list")
 	async def listmods(self, bot, ctx):
 		''' Lists the current known moderators in the list. '''
-		await permissions.check_permissions(ctx, manage_roles=True)
+		await permissions.check_permissions(ctx, manage_server=True)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
 		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
@@ -102,7 +102,7 @@ class Config(cogs.Cog):
 	@adminlist.command("add", "add")
 	async def adminadd(self, bot, ctx, member: discord.Member):
 		''' Add a new admin. '''
-		await permissions.check_permissions(ctx, manage_roles=True)
+		await permissions.check_permissions(ctx, manage_server=True)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 		member = await bot.converter.member(ctx, member)
 
@@ -120,7 +120,7 @@ class Config(cogs.Cog):
 	@adminlist.command("remove", "remove")
 	async def adminremove(self, bot, ctx, member: discord.Member):
 		''' Remove an admin from the list. '''
-		await permissions.check_permissions(ctx, manage_roles=True)
+		await permissions.check_permissions(ctx, manage_server=True)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 		member = await bot.converter.member(ctx, member)
 
@@ -132,7 +132,7 @@ class Config(cogs.Cog):
 	@adminlist.command("get", "list")
 	async def listadmins(self, bot, ctx):
 		''' Lists the current known admins in the list. '''
-		await permissions.check_permissions(ctx, manage_roles=True)
+		await permissions.check_permissions(ctx, manage_server=True)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
 		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
