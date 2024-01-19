@@ -12,6 +12,30 @@ CREATE TABLE IF NOT EXISTS guilds (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS strict_mod_actions (
+  guild bigint unsigned NOT NULL,
+  enabled boolean NOT NULL DEFAULT 0,
+
+  PRIMARY KEY (guild),
+  FOREIGN KEY (guild) REFERENCES guilds(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS guild_mods (
+  guild bigint unsigned NOT NULL,
+  user_id bigint NOT NULL,
+
+  PRIMARY KEY (guild),
+  FOREIGN KEY (guild) REFERENCES guilds(id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS guild_admins (
+  guild bigint unsigned NOT NULL,
+  user_id bigint NOT NULL,
+
+  PRIMARY KEY (guild),
+  FOREIGN KEY (guild) REFERENCES guilds(id) ON DELETE CASCADE
+);
+
 CREATE TABLE IF NOT EXISTS antispam ( -- 0 False, 1 True
   guild bigint unsigned NOT NULL,
   strict boolean NOT NULL DEFAULT 0,

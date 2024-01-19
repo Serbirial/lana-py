@@ -49,6 +49,52 @@ class Config(cogs.Cog):
 			await ctx.send(f"Prefix `{prefix.strip()}` has been removed.")
 
 
+	@commands.group("modlist")
+	async def modlist(self, bot, ctx):
+		''' Command group that configures the known moderators. '''
+		await ctx.show_help(self)
+
+	@modlist.command("add", "add")
+	async def modadd(self, bot, ctx, member: discord.Member):
+		''' Add a new mod. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+		member = await bot.converter.member(ctx, member)
+
+		actions = {
+			"clash": ctx.send("User is already in the mod list."),
+			"limit": ctx.send(f"This guild is at the moderator limit (NOTSETYOUSHOULDNTSEETHIS)"),
+			True:    ctx.send(f"Moderator `{member.display_name}` has been added")
+		}
+
+		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200])
+		connection.set_default_action(ctx.send("The API sent back an un-expected response."))
+
+		await connection.post(require_json=True, json={"op": int(member.id)})
+
+	@modlist.command("remove", "remove")
+	async def modremove(self, bot, ctx, member: discord.Member):
+		''' Remove a mod from the list. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+		member = await bot.converter.member(ctx, member)
+
+		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
+		resp = (await connection.post(require_json=True, json={"op": int(member.id)})).expect_json_key("op").expect_json_value("op", True, True)
+		if resp == True: # NOTE: should never be anything except true, because it SHOULD error before it has the chance to reach the
+			await ctx.send(f"Mod `{member.display_name}` has been removed from the list.")
+
+	@modlist.command("get", "list")
+	async def listmods(self, bot, ctx, member: discord.Member):
+		''' Lists the current known moderators in the list. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+		member = await bot.converter.member(ctx, member)
+
+		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
+		resp = (await connection.post(require_json=True, json={"op": None})).expect_json_key("op", True)
+		await ctx.send(f"IDs of all known moderators (FIXME):\n{resp}") # FIXME make look nice
+
 	@commands.group("panic")
 	async def panic(self, bot, ctx):
 		''' Command group that configures the panic feature. '''
