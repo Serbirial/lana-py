@@ -94,6 +94,52 @@ class Config(cogs.Cog):
 		resp = (await connection.post(require_json=True, json={"op": None})).expect_json_key("op", True)
 		await ctx.send(f"IDs of all known moderators (FIXME):\n{resp}") # FIXME make look nice
 
+	@commands.group("adminlist")
+	async def adminlist(self, bot, ctx):
+		''' Command group that configures the known admins. '''
+		await ctx.show_help(self)
+
+	@adminlist.command("add", "add")
+	async def adminadd(self, bot, ctx, member: discord.Member):
+		''' Add a new admin. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+		member = await bot.converter.member(ctx, member)
+
+		actions = {
+			"clash": ctx.send("User is already in the admin list."),
+			"limit": ctx.send(f"This guild is at the admin limit (NOTSETYOUSHOULDNTSEETHIS)"),
+			True:    ctx.send(f"Admin `{member.display_name}` has been added.")
+		}
+
+		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200])
+		connection.set_default_action(ctx.send("The API sent back an un-expected response."))
+
+		await connection.post(require_json=True, json={"op": int(member.id)})
+
+	@adminlist.command("remove", "remove")
+	async def adminremove(self, bot, ctx, member: discord.Member):
+		''' Remove an admin from the list. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+		member = await bot.converter.member(ctx, member)
+
+		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
+		resp = (await connection.post(require_json=True, json={"op": int(member.id)})).expect_json_key("op").expect_json_value("op", True, True)
+		if resp == True: # NOTE: should never be anything except true, because it SHOULD error before it has the chance to reach the
+			await ctx.send(f"Admin `{member.display_name}` has been removed from the list.")
+
+	@adminlist.command("get", "list")
+	async def listadmins(self, bot, ctx):
+		''' Lists the current known admins in the list. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+
+		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
+		resp = (await connection.post(require_json=True, json={"op": None})).expect_json_key("op", True)
+		await ctx.send(f"IDs of all known admins (FIXME):\n{resp}") # FIXME make look nice
+
+
 	@commands.group("panic")
 	async def panic(self, bot, ctx):
 		''' Command group that configures the panic feature. '''
