@@ -143,8 +143,12 @@ class Config(cogs.Cog):
 
 		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		resp = (await connection.post(require_json=True, json={"op": None})).expect_json_key("op", True)
-		await ctx.send(f"IDs of all known admins (FIXME):\n{resp}") # FIXME make look nice
+		text = "```"
+		for uid in resp:
+			text += f"{bot.get_user(uid).display_name} ({uid})\n"
+		text += "```"
 
+		await ctx.send(f"All known admins (FIXME):\n{text}") # FIXME make look nice
 
 	@commands.group("panic")
 	async def panic(self, bot, ctx):
