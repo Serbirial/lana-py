@@ -6,7 +6,8 @@ from dis_command.discommand.ext import commands
 
 from utils import (
 	permissions,
-	api
+	api,
+	checks
 )
 
 
@@ -319,8 +320,10 @@ class Config(cogs.Cog):
 
 	@commands.command("strictmodactions", name="strictmodactions")
 	async def modonlyactions(self, bot, ctx):
-		''' Toggle panic on/off. '''
+		''' Toggle strict moderation actions on/off. (mod/admin type actions must be done by users in the modlist or adminlist) '''
 		await permissions.check_permissions(ctx, manage_server=True)
+		if ctx.author.id != ctx.guild.owner.id:
+			return await ctx.send("This command can only be ran by the Guilds OWNER.")
 		URI = f"{bot.config.api_url}/{self.endpoint}/{ctx.guild.id}"
 
 		actions = {
