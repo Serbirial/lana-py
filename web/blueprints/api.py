@@ -376,10 +376,10 @@ async def modlist_add(request, guild):
 		return json({"op": -1}) # -1 is code for a general conversion error.
 	
 	check = request.app.ctx.db.query_row("SELECT user_id FROM guild_mods WHERE guild = ? and user_id = ?", guild, mod_id)
-	if check == None:
-		request.app.ctx.db.execute("INSERT INTO guild_mods (guild, user_id) VALUES (?,?)", guild, mod_id)
-	elif check != None:
+	if check != None:
 		return json({"op": "clash"})
+
+	request.app.ctx.db.execute("INSERT INTO guild_mods (guild, user_id) VALUES (?,?)", guild, mod_id)
 
 	return json({"op": True})
 
