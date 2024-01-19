@@ -4,6 +4,7 @@ import asyncio
 from dis_command.discommand.ext import cogs
 from dis_command.discommand.ext import commands
 
+from utils.embed import Embed
 from utils import (
 	permissions,
 	api,
@@ -93,12 +94,11 @@ class Config(cogs.Cog):
 
 		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		resp = (await connection.post(require_json=True, json={"op": None})).expect_json_key("op", True)
-		text = "```"
+		embed = Embed(ctx.channel, title="Currently known moderators.")
 		for uid in resp:
-			text += f"{bot.get_user(uid).display_name} ({uid})\n"
-		text += "```"
+			embed.add_to_description(f"{bot.get_user(uid).mention} ({uid})\n")
 
-		await ctx.send(f"All known moderators (FIXME):\n{text}") # FIXME make look nice
+		await embed.send()
 
 	@commands.group("adminlist")
 	async def adminlist(self, bot, ctx):
@@ -143,13 +143,11 @@ class Config(cogs.Cog):
 
 		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		resp = (await connection.post(require_json=True, json={"op": None})).expect_json_key("op", True)
-		text = "```"
+		embed = Embed(ctx.channel, title="Currently known admins.")
 		for uid in resp:
-			text += f"{bot.get_user(uid).display_name} ({uid})\n"
-		text += "```"
+			embed.add_to_description(f"{bot.get_user(uid).mention} ({uid})\n")
 
-		await ctx.send(f"All known admins (FIXME):\n{text}") # FIXME make look nice
-
+		await embed.send()
 	@commands.group("panic")
 	async def panic(self, bot, ctx):
 		''' Command group that configures the panic feature. '''
