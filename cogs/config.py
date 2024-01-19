@@ -182,7 +182,6 @@ class Config(cogs.Cog):
 
 
 
-
 	@commands.group("log")
 	async def log(self, bot, ctx):
 		''' Command group that configures the logging. '''
@@ -315,6 +314,20 @@ class Config(cogs.Cog):
 			True: ctx.send(f"Time has been set to {days}.")
 		}
 		
+		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
+		await connection.post(require_json=True, json={"op": None})
+
+	@commands.command("strictmodactions", "toggle")
+	async def panictoggle(self, bot, ctx):
+		''' Toggle panic on/off. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{self.endpoint}/{ctx.guild.id}"
+
+		actions = {
+			0: ctx.send(f"{ctx.command.endpoint.capitalize()} has been enabled."),
+			1: ctx.send(f"{ctx.command.endpoint.capitalize()} has been disabled."),
+			2: ctx.send(f"{ctx.command.endpoint.capitalize()} config has been populated, please run any commands again.")}
+	
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 

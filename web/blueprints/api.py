@@ -8,11 +8,12 @@ blueprint = Blueprint('API', url_prefix="/api")
 # NOTE: Currently done endpoints: logging, welcoming, autorole, prefix
 
 table_data = { # Contains queries to populate tables based on their name
-	"logging": 		  "INSERT INTO logging (guild, enabled) VALUES (?,0)",
-	"welcome": 		  "INSERT INTO welcome (guild, enabled) VALUES (?,0)",
-	"panic":   		  "INSERT INTO panic (guild, enabled) VALUES (?,0)",
-	"antialt": 		  "INSERT INTO antialt (guild, enabled) VALUES (?,0)",
-	"premium_points": "INSERT INTO premium_points (user_id, points) VALUES (?,0)"
+	"logging": 		      "INSERT INTO logging (guild, enabled) VALUES (?,0)",
+	"welcome": 		      "INSERT INTO welcome (guild, enabled) VALUES (?,0)",
+	"panic":   		      "INSERT INTO panic (guild, enabled) VALUES (?,0)",
+	"antialt": 		      "INSERT INTO antialt (guild, enabled) VALUES (?,0)",
+	"premium_points":     "INSERT INTO premium_points (user_id, points) VALUES (?,0)",
+	"strict_mod_actions": "INSERT INTO strict_mod_actions (guild, enabled) VALUES (?,0)" 
 }
 async def populate_table(db, table, *args):
 	db.execute(table_data[table], *args)
@@ -435,3 +436,18 @@ async def adminlist_remove(request, guild):
 	request.app.ctx.db.execute("DELETE FROM guild_admins WHERE guild = ? AND user_id = ?", guild, admin_id)
 
 	return json({"op": True})
+
+##########
+
+@blueprint.post("/strictmodactions/<guild:int>", strict_slashes=True)
+async def strictmodactionstoggle(request, guild):
+	check = request.app.ctx.db.query_row("SELECT enabled FROM welcome WHERE guild = ?", guild)
+	if check == None:
+		await populate_table(request.app.ctx.db, "strict_mod_actions", guild)
+		return json({"op": 2}) # 2 is code for 'populated', aka first run.
+	elif check == 0:
+		request.app.ctx.db.execute("UPDATE strict_mod_actions SET enabled = 1 WHERE guild=?", guild)
+	elif check == 1:
+		request.app.ctx.db.execute("UPDATE strict_mod_actions SET enabled = 0 WHERE guild=?", guild)
+	
+	return json({"op": check}) # Return the toggled state from before.
