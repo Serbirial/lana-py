@@ -374,14 +374,12 @@ async def modlist_add(request, guild):
 		mod_id = int(_json["op"])
 	except:
 		return json({"op": -1}) # -1 is code for a general conversion error.
-	
-	check = request.app.ctx.db.query_row("SELECT user_id FROM guild_mods WHERE guild = ? and user_id = ?", guild, mod_id)
-	if check != None:
+	check = request.app.ctx.db.query_row("SELECT user_id FROM guild_mods WHERE guild = ? AND user_id = ?", guild, mod_id)
+	if check == None:
+		request.app.ctx.db.execute("INSERT INTO guild_mods (guild, user_id) VALUES (?,?)", guild, mod_id)
+		return json({"op": True})
+	else:
 		return json({"op": "clash"})
-
-	request.app.ctx.db.execute("INSERT INTO guild_mods (guild, user_id) VALUES (?,?)", guild, mod_id)
-
-	return json({"op": True})
 
 @blueprint.post("/modlist/<guild:int>/remove", strict_slashes=True)
 async def modlist_remove(request, guild):
