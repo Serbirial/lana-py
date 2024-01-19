@@ -4,7 +4,7 @@ import discord
 from dis_command.discommand.ext import cogs
 from dis_command.discommand.ext import commands
 
-from utils import permissions, default
+from utils import permissions, default, checks
 from utils.predefiner import PredefinedActions
 
 
@@ -19,6 +19,8 @@ class Moderation(cogs.Cog):
 	async def kick(self, bot, ctx, member: discord.Member, reason: str = None):
 		""" Kicks a user from the current server. """
 		await permissions.check_permissions(ctx, kick_members=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
 		member = await bot.converter.member(ctx, member)
 
 		await ctx.guild.kick(member, reason=default.responsible(ctx.author, reason))
@@ -38,6 +40,8 @@ class Moderation(cogs.Cog):
 	async def mute(self, bot, ctx, member: discord.Member, reason: str = None):
 		""" Mutes a user from the current server. """
 		await permissions.check_permissions(ctx, manage_roles=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
 		member = await bot.converter.member(ctx, member)
 
 		mute_role = None
@@ -65,6 +69,8 @@ class Moderation(cogs.Cog):
 	async def unmute(self, bot, ctx, member: discord.Member, reason: str = None):
 		""" Mutes a user from the current server. """
 		await permissions.check_permissions(ctx, manage_roles=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
 		member = await bot.converter.member(ctx, member)
 
 		mute_role = None
@@ -80,6 +86,8 @@ class Moderation(cogs.Cog):
 	async def ban(self, bot, ctx, member: discord.Member = None, reason: str = None):
 		""" Bans a user from the current server. """
 		await permissions.check_permissions(ctx, ban_members=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
 		if member is None:
 			return await ctx.send("You need to mention the person to ban.")
 		member = await bot.converter.member(ctx, member)
@@ -91,7 +99,9 @@ class Moderation(cogs.Cog):
 	async def massban(self, bot, ctx, reason, members: int):
 		""" Mass bans multiple members from the server. [IDS ONLY]"""
 		await permissions.check_permissions(ctx, ban_members=True)
-		
+		if checks.strict_actions(ctx):
+			checks.is_known_admin(ctx, ctx.author.id)
+
 		for member_id in members:
 			try:
 				await ctx.guild.ban(discord.Object(id=int(member_id)), reason=default.responsible(ctx.author, reason))
@@ -103,6 +113,8 @@ class Moderation(cogs.Cog):
 	async def unban(self, bot, ctx, member: int, reason: str = None):
 		""" Unbans a user from the current server. """
 		await permissions.check_permissions(ctx, ban_members=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
 		member = await bot.converter.integer(ctx, member)
 		
 		if member is None:
@@ -121,6 +133,8 @@ class Moderation(cogs.Cog):
 	async def addrole(self, bot, ctx, member: discord.Member, rolename: str, reason: str = None):
 		""" Add a role to someone else. """
 		await permissions.check_permissions(ctx, manage_roles=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
 		member = await bot.converter.member(ctx, member)
 
 		role = discord.utils.find(lambda m: rolename.lower(
@@ -134,6 +148,8 @@ class Moderation(cogs.Cog):
 	async def massaddrole(self, bot, ctx, rolename: str, reason: str = None):
 		''' Mass add roles to everyone. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_admin(ctx, ctx.author.id)
 
 		role = discord.utils.find(lambda m: rolename.lower(
 		) in m.name.lower(), ctx.message.guild.roles)
@@ -150,6 +166,8 @@ class Moderation(cogs.Cog):
 	async def removerole(self, bot, ctx, member: discord.Member, rolename: str, reason: str = None):
 		""" Remove a role from someone else. """
 		await permissions.check_permissions(ctx, manage_roles=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
 		member = await bot.converter.member(ctx, member)
 		if reason == None:
 			reason 
@@ -166,7 +184,7 @@ class Moderation(cogs.Cog):
 		""" Strips a user of all ascii if you have the permissions, or if you dont; sends the stripped version."""
 		member = await bot.converter.member(ctx, member)
 		
-		if ctx.me.permissions_in(ctx.channel).manage_nicknames and ctx.author.permissions_in(ctx.channel).manage_nicknames:
+		if ctx.me.permissions_in(ctx.channel).manage_nicknames and ctx.author.permissions_in(ctx.channel).manage_nicknames and not checks.strict_actions(ctx):
 			cancer = member.display_name
 			decancer = unidecode.unidecode_expect_nonascii(cancer)
 			if len(decancer) > 32:

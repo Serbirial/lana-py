@@ -11,3 +11,6 @@ class CommandCheckError(Exception):
 
 class PremiumCheckError(Exception):
     pass
+
+class StrictActionCheckError(Exception):
+    pass

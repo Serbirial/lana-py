@@ -11,7 +11,8 @@ from exceptions import (
 	CantReachAPI,
 	CommandCheckError,
 	PremiumCheckError,
-	ArgConvertError
+	ArgConvertError,
+	StrictActionCheckError
 )
 
 from dis_command.discommand.ext.events import process_message
@@ -27,6 +28,10 @@ class CoreEvents(cogs.Cog):
 
 		elif isinstance(err, discord.Forbidden):
 			embed = discord.Embed(description="Not enough perms to execute this command.")
+			return await ctx.send(embed=embed)
+
+		elif isinstance(err, StrictActionCheckError):
+			embed = discord.Embed(description="This server has Strict Moderation Actions on: and you are not in the list of known moderators/admins.")
 			return await ctx.send(embed=embed)
 
 		elif isinstance(err, ArgConvertError):
