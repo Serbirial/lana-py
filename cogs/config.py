@@ -71,7 +71,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200])
 		connection.set_default_action(ctx.send("The API sent back an un-expected response."))
 
-		await connection.post(require_json=True, json={"op": int(member.id)})
+		await connection.post(require_json=True, json={"op": member.id})
 
 	@modlist.command("remove", name="remove")
 	async def modremove(self, bot, ctx, member: discord.Member):
@@ -81,7 +81,7 @@ class Config(cogs.Cog):
 		member = await bot.converter.member(ctx, member)
 
 		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
-		resp = (await connection.post(require_json=True, json={"op": int(member.id)})).expect_json_key("op").expect_json_value("op", True, True)
+		resp = (await connection.post(require_json=True, json={"op": member.id})).expect_json_key("op").expect_json_value("op", True, True)
 		if resp == True: # NOTE: should never be anything except true, because it SHOULD error before it has the chance to reach the
 			await ctx.send(f"Mod `{member.display_name}` has been removed from the list.")
 
@@ -116,7 +116,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200])
 		connection.set_default_action(ctx.send("The API sent back an un-expected response."))
 
-		await connection.post(require_json=True, json={"op": int(member.id)})
+		await connection.post(require_json=True, json={"op": member.id})
 
 	@adminlist.command("remove", name="remove")
 	async def adminremove(self, bot, ctx, member: discord.Member):
@@ -126,7 +126,7 @@ class Config(cogs.Cog):
 		member = await bot.converter.member(ctx, member)
 
 		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
-		resp = (await connection.post(require_json=True, json={"op": int(member.id)})).expect_json_key("op").expect_json_value("op", True, True)
+		resp = (await connection.post(require_json=True, json={"op": member.id})).expect_json_key("op").expect_json_value("op", True, True)
 		if resp == True: # NOTE: should never be anything except true, because it SHOULD error before it has the chance to reach the
 			await ctx.send(f"Admin `{member.display_name}` has been removed from the list.")
 
