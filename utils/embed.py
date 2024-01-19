@@ -41,7 +41,7 @@ class Embed(discord_embed):
 
 	async def show(self):
 		if not self.message:
-			raise Exception("Tried to show embed changes before it was sent")
+			pass
 		await self.message.edit(embed=self)
 
 	async def send(self):
@@ -50,10 +50,10 @@ class Embed(discord_embed):
 	async def add_to_description(self, to_add: str):
 		if not self.description:
 			self.description = to_add
-			await self.show()
 		elif self.description:
 			self.description += f"\n{to_add}"
-		await self.show()
+		if self.message:
+			await self.show()
 
 	async def set_title(self, title):
 		self.title = title
