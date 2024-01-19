@@ -358,7 +358,7 @@ async def premium_points_add(request, user):
 
 @blueprint.post("/modlist/<guild:int>/get", strict_slashes=True) # TODO: make GET
 async def modlist_get(request, guild):
-	check = request.app.ctx.db.query("SELECT user_id FROM guild_mods WHERE guild = ?", guild)
+	check = request.app.ctx.db.query_row("SELECT user_id FROM guild_mods WHERE guild = ?", guild)
 	if check == None:
 			return json({"op": None})
 
@@ -374,7 +374,7 @@ async def modlist_add(request, guild):
 	except:
 		return json({"op": -1}) # -1 is code for a general conversion error.
 	
-	check = request.app.ctx.db.query("SELECT user_id FROM guild_mods WHERE guild = ?", guild)
+	check = request.app.ctx.db.query_row("SELECT user_id FROM guild_mods WHERE guild = ?", guild)
 	if check == None:
 		request.app.ctx.db.execute("INSERT INTO guild_mods (guild, user_id) VALUES (?,?)", guild, mod_id)
 	elif check != None:
@@ -398,7 +398,7 @@ async def modlist_remove(request, guild):
 
 @blueprint.post("/adminlist/<guild:int>/get", strict_slashes=True) # TODO: make GET
 async def adminlist_get(request, guild):
-	check = request.app.ctx.db.query("SELECT user_id FROM guild_admins WHERE guild = ?", guild)
+	check = request.app.ctx.db.query_row("SELECT user_id FROM guild_admins WHERE guild = ?", guild)
 	if check == None:
 			return json({"op": None})
 
@@ -414,7 +414,7 @@ async def adminlist_add(request, guild):
 	except:
 		return json({"op": -1}) # -1 is code for a general conversion error.
 
-	check = request.app.ctx.db.query("SELECT user_id FROM guild_admins WHERE guild = ?", guild)
+	check = request.app.ctx.db.query_row("SELECT user_id FROM guild_admins WHERE guild = ?", guild)
 	if check == None:
 		request.app.ctx.db.execute("INSERT INTO guild_admins (guild, user_id) VALUES (?,?)", guild, admin_id)
 	elif check != None:
