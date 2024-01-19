@@ -89,7 +89,6 @@ class Config(cogs.Cog):
 		''' Lists the current known moderators in the list. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
-		member = await bot.converter.member(ctx, member)
 
 		connection = api.InternalApiConnection(ctx, URI).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		resp = (await connection.post(require_json=True, json={"op": None})).expect_json_key("op", True)
