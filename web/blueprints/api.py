@@ -441,7 +441,7 @@ async def adminlist_remove(request, guild):
 
 @blueprint.post("/strictmodactions/<guild:int>", strict_slashes=True)
 async def strictmodactionstoggle(request, guild):
-	check = request.app.ctx.db.query_row("SELECT enabled FROM welcome WHERE guild = ?", guild)
+	check = request.app.ctx.db.query_row("SELECT enabled FROM strict_mod_actions WHERE guild = ?", guild)
 	if check == None:
 		await populate_table(request.app.ctx.db, "strict_mod_actions", guild)
 		return json({"op": 2}) # 2 is code for 'populated', aka first run.
