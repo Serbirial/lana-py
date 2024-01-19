@@ -317,8 +317,8 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@commands.command("strictmodactions", name="toggle")
-	async def panictoggle(self, bot, ctx):
+	@commands.command("strictmodactions", name="strictmodactions")
+	async def modonlyactions(self, bot, ctx):
 		''' Toggle panic on/off. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
 		URI = f"{bot.config.api_url}/{self.endpoint}/{ctx.guild.id}"
