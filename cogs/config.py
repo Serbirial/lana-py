@@ -85,7 +85,7 @@ class Config(cogs.Cog):
 			await ctx.send(f"Mod `{member.display_name}` has been removed from the list.")
 
 	@modlist.command("get", "list")
-	async def listmods(self, bot, ctx, member: discord.Member):
+	async def listmods(self, bot, ctx):
 		''' Lists the current known moderators in the list. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
