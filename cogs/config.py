@@ -21,7 +21,7 @@ class Config(cogs.Cog):
 		''' Command group that configures the prefixes. '''
 		await ctx.show_help(self)
 
-	@prefix.command("add", "add")
+	@prefix.command("add", name="add")
 	async def prefixadd(self, bot, ctx, prefix: str):
 		''' Add a new prefix. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -37,7 +37,7 @@ class Config(cogs.Cog):
 
 		await connection.post(require_json=True, json={"op": prefix.strip()})
 
-	@prefix.command("remove", "remove")
+	@prefix.command("remove", name="remove")
 	async def prefixremove(self, bot, ctx, prefix: str):
 		''' Remove a custom prefix. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -54,7 +54,7 @@ class Config(cogs.Cog):
 		''' Command group that configures the known moderators. '''
 		await ctx.show_help(self)
 
-	@modlist.command("add", "add")
+	@modlist.command("add", name="add")
 	async def modadd(self, bot, ctx, member: discord.Member):
 		''' Add a new mod. '''
 		await permissions.check_permissions(ctx, manage_server=True)
@@ -72,7 +72,7 @@ class Config(cogs.Cog):
 
 		await connection.post(require_json=True, json={"op": int(member.id)})
 
-	@modlist.command("remove", "remove")
+	@modlist.command("remove", name="remove")
 	async def modremove(self, bot, ctx, member: discord.Member):
 		''' Remove a mod from the list. '''
 		await permissions.check_permissions(ctx, manage_server=True)
@@ -84,7 +84,7 @@ class Config(cogs.Cog):
 		if resp == True: # NOTE: should never be anything except true, because it SHOULD error before it has the chance to reach the
 			await ctx.send(f"Mod `{member.display_name}` has been removed from the list.")
 
-	@modlist.command("get", "list")
+	@modlist.command("get", name="list")
 	async def listmods(self, bot, ctx):
 		''' Lists the current known moderators in the list. '''
 		await permissions.check_permissions(ctx, manage_server=True)
@@ -99,7 +99,7 @@ class Config(cogs.Cog):
 		''' Command group that configures the known admins. '''
 		await ctx.show_help(self)
 
-	@adminlist.command("add", "add")
+	@adminlist.command("add", name="add")
 	async def adminadd(self, bot, ctx, member: discord.Member):
 		''' Add a new admin. '''
 		await permissions.check_permissions(ctx, manage_server=True)
@@ -117,7 +117,7 @@ class Config(cogs.Cog):
 
 		await connection.post(require_json=True, json={"op": int(member.id)})
 
-	@adminlist.command("remove", "remove")
+	@adminlist.command("remove", name="remove")
 	async def adminremove(self, bot, ctx, member: discord.Member):
 		''' Remove an admin from the list. '''
 		await permissions.check_permissions(ctx, manage_server=True)
@@ -129,7 +129,7 @@ class Config(cogs.Cog):
 		if resp == True: # NOTE: should never be anything except true, because it SHOULD error before it has the chance to reach the
 			await ctx.send(f"Admin `{member.display_name}` has been removed from the list.")
 
-	@adminlist.command("get", "list")
+	@adminlist.command("get", name="list")
 	async def listadmins(self, bot, ctx):
 		''' Lists the current known admins in the list. '''
 		await permissions.check_permissions(ctx, manage_server=True)
@@ -145,7 +145,7 @@ class Config(cogs.Cog):
 		''' Command group that configures the panic feature. '''
 		await ctx.show_help(self)
 	
-	@panic.command("toggle", "toggle")
+	@panic.command("toggle", name="toggle")
 	async def panictoggle(self, bot, ctx):
 		''' Toggle panic on/off. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -159,7 +159,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@panic.command("message_limit", "mlimit")
+	@panic.command("message_limit", name="mlimit")
 	async def panicmessage(self, bot, ctx, limit: int = None):
 		''' Change the message limit per 5 seconds until the bot panics and starts muting people. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -187,7 +187,7 @@ class Config(cogs.Cog):
 		''' Command group that configures the logging. '''
 		await ctx.show_help(self)
 	
-	@log.command("toggle", "toggle")
+	@log.command("toggle", name="toggle")
 	async def logtoggle(self, bot, ctx):
 		''' Toggle logging on/off. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -201,7 +201,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@log.command("channel", "channel")
+	@log.command("channel", name="channel")
 	async def logchannel(self, bot, ctx, channel: discord.abc.GuildChannel):
 		''' Change the channel logs go to. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -225,7 +225,7 @@ class Config(cogs.Cog):
 		''' Command group that configures the auto-welcome. '''
 		await ctx.show_help(self)
 	
-	@welcome.command("toggle", "toggle")
+	@welcome.command("toggle", name="toggle")
 	async def welcometoggle(self, bot, ctx):
 		''' Toggle auto-welcome on/off. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -239,7 +239,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@welcome.command("embed", "embed")
+	@welcome.command("embed", name="embed")
 	async def welcomeembed(self, bot, ctx):
 		''' Toggle if the join message is an embed or not. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -253,7 +253,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@welcome.command("channel", "channel")
+	@welcome.command("channel", name="channel")
 	async def welcomechannel(self, bot, ctx, channel: discord.abc.GuildChannel):
 		''' Change the channel join messages go to. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -268,7 +268,7 @@ class Config(cogs.Cog):
 		await connection.post(require_json=True, json={"op": None})
 
 
-	@welcome.command("message", "message")
+	@welcome.command("message", name="message")
 	async def welcomemessage(self, bot, ctx, message: str = None):
 		''' Change the content of the join message. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -288,7 +288,7 @@ class Config(cogs.Cog):
 		''' Command group that configures anti-alt. '''
 		await ctx.show_help(self)
 	
-	@antialt.command("toggle", "toggle")
+	@antialt.command("toggle", name="toggle")
 	async def antialttoggle(self, bot, ctx):
 		''' Toggle anti-alt on/off. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -302,7 +302,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@antialt.command("days", "days")
+	@antialt.command("days", name="days")
 	async def antialtdays(self, bot, ctx, time_in_days: int):
 		''' Change the account age (in days) it takes to trigger the anti-alt. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -317,7 +317,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@commands.command("strictmodactions", "toggle")
+	@commands.command("strictmodactions", name="toggle")
 	async def panictoggle(self, bot, ctx):
 		''' Toggle panic on/off. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
