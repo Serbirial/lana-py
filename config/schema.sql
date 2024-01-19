@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS guild_mods (
   guild bigint unsigned NOT NULL,
   user_id bigint NOT NULL,
 
-  PRIMARY KEY (guild),
+  PRIMARY KEY (user_id),
   FOREIGN KEY (guild) REFERENCES guilds(id) ON DELETE CASCADE
 );
 
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS guild_admins (
   guild bigint unsigned NOT NULL,
   user_id bigint NOT NULL,
 
-  PRIMARY KEY (guild),
+  PRIMARY KEY (user_id),
   FOREIGN KEY (guild) REFERENCES guilds(id) ON DELETE CASCADE
 );
 
