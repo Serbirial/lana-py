@@ -320,7 +320,7 @@ class Config(cogs.Cog):
 	@commands.command("strictmodactions", name="strictmodactions")
 	async def modonlyactions(self, bot, ctx):
 		''' Toggle panic on/off. '''
-		await permissions.check_permissions(ctx, manage_roles=True)
+		await permissions.check_permissions(ctx, manage_server=True)
 		URI = f"{bot.config.api_url}/{self.endpoint}/{ctx.guild.id}"
 
 		actions = {
