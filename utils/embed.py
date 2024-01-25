@@ -9,7 +9,8 @@ from discord import (
 	Webhook,
 	Member,
 	Message,
-	TextChannel
+	TextChannel,
+	AuditLogAction
 )
 from discord.colour import Colour
 
@@ -108,8 +109,10 @@ async def add_member_difference_fields(embed: discord_embed, before: Member, aft
 		elif len(before.roles) < len(after.roles):
 			rolemsg = f"Added role(s): {' '.join([x.name for x in after.roles if x not in before.roles])}"
 		try:
-			logs = await before.guild.audit_logs(limit=10)
-			tmp = [x for x in logs if x.target == before]
+			tmp = []
+			async for entry in before.guild.audit_logs(limit=10, action=AuditLogAction.member_role_update):
+				if entry.target == before:
+					tmp.append(entry)
 		except Forbidden:
 			embed.set_footer(text="Could not view audit logs to see who did this action")
 		else:
