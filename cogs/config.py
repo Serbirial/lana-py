@@ -1,6 +1,6 @@
 import discord
 
-from config import prefix_limit
+from config.config import prefix_limit
 
 from dis_command.discommand.ext import cogs
 from dis_command.discommand.ext import commands
