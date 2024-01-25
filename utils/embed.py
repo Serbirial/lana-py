@@ -108,7 +108,8 @@ async def add_member_difference_fields(embed: discord_embed, before: Member, aft
 		elif len(before.roles) < len(after.roles):
 			rolemsg = f"Added role(s): {' '.join([x.name for x in after.roles if x not in before.roles])}"
 		try:
-			tmp = [x for x in before.guild.audit_logs(limit=10) if x.target == before]
+			logs = await before.guild.audit_logs(limit=10)
+			tmp = [x for x in logs if x.target == before]
 		except Forbidden:
 			embed.set_footer(text="Could not view audit logs to see who did this action")
 		else:
