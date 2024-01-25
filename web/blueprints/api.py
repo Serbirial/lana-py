@@ -25,8 +25,8 @@ async def prefix_add(request, guild):
 	if not _json or not "op" in _json:
 		return json({"op": "Missing JSON."})
 	
-	limit = request.app.ctx.db.query_row("SELECT COUNT(*) FROM prefixes WHERE guild = ?", guild)
-	if limit.values()[0] >= config.prefix_limit:
+	limit = request.app.ctx.db.query("SELECT prefix FROM prefixes WHERE guild = ?", guild) # FIXME: figure out a way to make COUNT() work
+	if limit != None and len(limit) >= config.prefix_limit:
 		return json({"op": "limit"})
 
 	check = request.app.ctx.db.query_row("SELECT prefix FROM prefixes WHERE guild = ? AND prefix = ?", guild, _json["op"])
