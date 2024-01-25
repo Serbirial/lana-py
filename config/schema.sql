@@ -15,6 +15,7 @@ CREATE TABLE IF NOT EXISTS guilds (
 CREATE TABLE IF NOT EXISTS strict_mod_actions (
   guild bigint unsigned NOT NULL,
   enabled boolean NOT NULL DEFAULT 0,
+  premium boolean NOT NULL DEFAULT 0,
 
   PRIMARY KEY (guild),
   FOREIGN KEY (guild) REFERENCES guilds(id) ON DELETE CASCADE
