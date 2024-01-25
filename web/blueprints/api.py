@@ -13,7 +13,7 @@ table_data = { # Contains queries to populate tables based on their name
 	"panic":   		      "INSERT INTO panic (guild, enabled) VALUES (?,0)",
 	"antialt": 		      "INSERT INTO antialt (guild, enabled) VALUES (?,0)",
 	"premium_points":     "INSERT INTO premium_points (user_id, points) VALUES (?,0)",
-	"strict_mod_actions": "INSERT INTO strict_mod_actions (guild, enabled) VALUES (?,0)" 
+	"strict_mod_actions": "INSERT INTO strict_mod_actions (guild, enabled) VALUES (?,0,0)" 
 }
 async def populate_table(db, table, *args):
 	db.execute(table_data[table], *args)
@@ -26,7 +26,7 @@ async def prefix_add(request, guild):
 		return json({"op": "Missing JSON."})
 	
 	limit = request.app.ctx.db.query_row("SELECT COUNT(*) FROM prefixes WHERE guild = ?", guild)
-	if limit >= config.prefix_limit:
+	if limit.values()[0] >= config.prefix_limit:
 		return json({"op": "limit"})
 
 	check = request.app.ctx.db.query_row("SELECT prefix FROM prefixes WHERE guild = ? AND prefix = ?", guild, _json["op"])
@@ -437,7 +437,7 @@ async def adminlist_remove(request, guild):
 
 ##########
 
-@blueprint.post("/strictmodactions/<guild:int>", strict_slashes=True)
+@blueprint.post("/strictmodactions/<guild:int>/toggle", strict_slashes=True)
 async def strictmodactionstoggle(request, guild):
 	check = request.app.ctx.db.query_row("SELECT enabled FROM strict_mod_actions WHERE guild = ?", guild)
 	if check == None:
@@ -447,5 +447,18 @@ async def strictmodactionstoggle(request, guild):
 		request.app.ctx.db.execute("UPDATE strict_mod_actions SET enabled = 1 WHERE guild=?", guild)
 	elif check == 1:
 		request.app.ctx.db.execute("UPDATE strict_mod_actions SET enabled = 0 WHERE guild=?", guild)
+	
+	return json({"op": check}) # Return the toggled state from before.
+
+@blueprint.post("/strictmodactions/<guild:int>/premium", strict_slashes=True)
+async def strictmodactionspremiumtoggle(request, guild):
+	check = request.app.ctx.db.query_row("SELECT premium FROM strict_mod_actions WHERE guild = ?", guild)
+	if check == None:
+		await populate_table(request.app.ctx.db, "strict_mod_actions", guild)
+		return json({"op": 2}) # 2 is code for 'populated', aka first run.
+	elif check == 0:
+		request.app.ctx.db.execute("UPDATE strict_mod_actions SET premium = 1 WHERE guild=?", guild)
+	elif check == 1:
+		request.app.ctx.db.execute("UPDATE strict_mod_actions SET premium = 0 WHERE guild=?", guild)
 	
 	return json({"op": check}) # Return the toggled state from before.
