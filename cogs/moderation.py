@@ -183,8 +183,10 @@ class Moderation(cogs.Cog):
 	async def decancer(self, bot, ctx, member : discord.Member):
 		""" Strips a user of all ascii if you have the permissions, or if you dont; sends the stripped version."""
 		member = await bot.converter.member(ctx, member)
-		
+
 		if ctx.me.permissions_in(ctx.channel).manage_nicknames and ctx.author.permissions_in(ctx.channel).manage_nicknames and not checks.strict_actions(ctx):
+			if checks.strict_actions(ctx):
+				checks.is_known_mod(ctx, ctx.author.id)
 			cancer = member.display_name
 			decancer = unidecode.unidecode_expect_nonascii(cancer)
 			if len(decancer) > 32:
