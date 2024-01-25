@@ -324,14 +324,14 @@ class Config(cogs.Cog):
 		}
 		
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
-		await connection.post(require_json=True, json={"op": None})
+		await connection.post(require_json=True, json={"op": days})
 
 	@commands.group("strictmodactions", name="strictmodactions")
 	async def modonlyactions(self, bot, ctx):
 		''' Configures the mod-only actions system. '''
 		await ctx.show_help(self)
 
-	@modonlyactions.command("toggle", name="toggle")
+	@modonlyactions.command("toggle", name="toggle")	
 	async def modonlyactionstoggle(self, bot, ctx):
 		''' Toggle strict moderation actions on/off. (mod/admin commands must be done by users in the modlist or adminlist) '''
 		await permissions.check_permissions(ctx, manage_server=True)
