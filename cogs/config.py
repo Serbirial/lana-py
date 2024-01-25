@@ -331,7 +331,7 @@ class Config(cogs.Cog):
 		await ctx.show_help(self)
 
 	@modonlyactions.command("toggle", name="toggle")
-	async def modonlyactions(self, bot, ctx):
+	async def modonlyactionstoggle(self, bot, ctx):
 		''' Toggle strict moderation actions on/off. (mod/admin commands must be done by users in the modlist or adminlist) '''
 		await permissions.check_permissions(ctx, manage_server=True)
 		if ctx.author.id != ctx.guild.owner.id:
@@ -347,8 +347,8 @@ class Config(cogs.Cog):
 		await connection.post(require_json=True, json={"op": None})
 
 	@modonlyactions.command("premium", name="premium")
-	async def modonlyactions(self, bot, ctx):
-		''' Toggle premium strict moderation actions on/off. (mod/admin actions must be done by users in the modlist or adminlist or they will be stripped of their roles/perms) '''
+	async def modonlyactionspremium(self, bot, ctx):
+		''' Toggle premium strict moderation actions on/off. (mod/admin actions must be done by users in the modlist or adminlist, through the entire server, or they will be stripped of their roles/perms) '''
 		await permissions.check_permissions(ctx, manage_server=True)
 		if ctx.author.id != ctx.guild.owner.id:
 			return await ctx.send("This command can only be ran by the Guilds OWNER.")
