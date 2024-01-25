@@ -325,17 +325,38 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@commands.command("strictmodactions", name="strictmodactions")
+	@commands.group("strictmodactions", name="strictmodactions")
 	async def modonlyactions(self, bot, ctx):
-		''' Toggle strict moderation actions on/off. (mod/admin type actions must be done by users in the modlist or adminlist) '''
+		''' Configures the mod-only actions system. '''
+		await ctx.show_help(self)
+
+	@modonlyactions.command("toggle", name="toggle")
+	async def modonlyactions(self, bot, ctx):
+		''' Toggle strict moderation actions on/off. (mod/admin commands must be done by users in the modlist or adminlist) '''
 		await permissions.check_permissions(ctx, manage_server=True)
 		if ctx.author.id != ctx.guild.owner.id:
 			return await ctx.send("This command can only be ran by the Guilds OWNER.")
-		URI = f"{bot.config.api_url}/{self.endpoint}/{ctx.guild.id}"
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
 		actions = {
 			0: ctx.send(f"{ctx.command.endpoint.capitalize()} has been enabled."),
 			1: ctx.send(f"{ctx.command.endpoint.capitalize()} has been disabled."),
+			2: ctx.send(f"{ctx.command.endpoint.capitalize()} config has been populated, please run any commands again.")}
+	
+		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
+		await connection.post(require_json=True, json={"op": None})
+
+	@modonlyactions.command("premium", name="premium")
+	async def modonlyactions(self, bot, ctx):
+		''' Toggle premium strict moderation actions on/off. (mod/admin actions must be done by users in the modlist or adminlist or they will be stripped of their roles/perms) '''
+		await permissions.check_permissions(ctx, manage_server=True)
+		if ctx.author.id != ctx.guild.owner.id:
+			return await ctx.send("This command can only be ran by the Guilds OWNER.")
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+
+		actions = {
+			0: ctx.send(f"{self.endpoint.capitalize()} has been enabled."),
+			1: ctx.send(f"{self.endpoint.capitalize()} has been disabled."),
 			2: ctx.send(f"{ctx.command.endpoint.capitalize()} config has been populated, please run any commands again.")}
 	
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
