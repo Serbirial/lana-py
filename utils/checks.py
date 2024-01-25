@@ -19,6 +19,14 @@ def strict_actions(ctx):
 	elif ret == 1:
 		return True
 
+def strict_actions_premium(ctx):
+	if ctx.bot.db.query_row("SELECT enabled FROM strict_mod_actions WHERE guild = ?", ctx.guild.id) == 1:
+		ret = ctx.bot.db.query_row("SELECT premium FROM strict_mod_actions WHERE guild = ?", ctx.guild.id)
+		if ret == None or ret == 0:
+			return False
+		elif ret == 1:
+			return True
+
 def is_known_admin(ctx, userid: int):
 	ret = ctx.bot.db.query_row("SELECT user_id FROM guild_admins WHERE guild = ? AND user_id = ?", ctx.guild.id, userid)
 	if ret == None:
