@@ -214,9 +214,9 @@ class Config(cogs.Cog):
 	async def logchannel(self, bot, ctx, channel: discord.abc.GuildChannel):
 		''' Change the channel logs go to. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
+		channel = await bot.converter.channel(ctx, channel)
 		if channel.permissions_for(ctx.guild.me).manage_webhooks == False:
 			return await ctx.send("I do not have permissions to manage webhooks in that channel.")
-		channel = await bot.converter.channel(ctx, channel)
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 		
 		actions = {
