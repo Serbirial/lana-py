@@ -146,7 +146,7 @@ class Config(cogs.Cog):
 		resp = (await connection.post(require_json=True, json={"op": None})).expect_json_key("op", True)
 		embed = Embed(ctx.channel, title="Currently known admins.")
 		for uid in resp:
-			embed.add_to_description(f"{bot.get_user(uid).mention} ({uid})\n")
+			await embed.add_to_description(f"{bot.get_user(uid).mention} ({uid})\n")
 
 		await embed.send()
 	@commands.group("panic")
