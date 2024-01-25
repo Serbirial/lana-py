@@ -1,5 +1,6 @@
 import discord
-import asyncio
+
+from config import prefix_limit
 
 from dis_command.discommand.ext import cogs
 from dis_command.discommand.ext import commands
@@ -30,7 +31,7 @@ class Config(cogs.Cog):
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 		actions = {
 			"clash": ctx.send("Given prefix clashes with already existing prefix."),
-			"limit": ctx.send(f"This guild is at the prefix limit ({bot.config.prefix_limit})"),
+			"limit": ctx.send(f"This guild is at the prefix limit ({prefix_limit})"),
 			True:    ctx.send(f"Prefix `{prefix.strip()}` has been added")
 		}
 
