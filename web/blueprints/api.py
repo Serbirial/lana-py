@@ -13,7 +13,7 @@ table_data = { # Contains queries to populate tables based on their name
 	"panic":   		      "INSERT INTO panic (guild, enabled) VALUES (?,0)",
 	"antialt": 		      "INSERT INTO antialt (guild, enabled) VALUES (?,0)",
 	"premium_points":     "INSERT INTO premium_points (user_id, points) VALUES (?,0)",
-	"strict_mod_actions": "INSERT INTO strict_mod_actions (guild, enabled) VALUES (?,0,0)" 
+	"strict_mod_actions": "INSERT INTO strict_mod_actions (guild, enabled, premium) VALUES (?,0,0)" 
 }
 async def populate_table(db, table, *args):
 	db.execute(table_data[table], *args)
