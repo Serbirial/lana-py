@@ -44,7 +44,7 @@ def get_guild_message(guild: int) -> int:
     Returns:
         int: The number of events that have happend.
     """    
-    return RDB.get(f"lana:events:{guild}") or 0
+    return RDB.get(f"lana:antilock:{guild}") or 0
 
 def add_guild_message(guild: int) -> int:
     """Adds message to guild counter.
@@ -55,10 +55,10 @@ def add_guild_message(guild: int) -> int:
     Returns:
         int: The new count of events.
     """    
-    key = f"lana:events:{guild}"
+    key = f"lana:antilock:{guild}"
     current = RDB.get(key)
     if current == None:
-        RDB.set(key, 1, 15)
+        RDB.set(key, 1, 10)
         return 1
     current = int(current) + 1
     RDB.set(key, current, keepttl=True)
