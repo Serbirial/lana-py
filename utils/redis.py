@@ -35,6 +35,35 @@ def add_guild_event(guild: int) -> int:
     return current
 
 
+def get_guild_message(guild: int) -> int:
+    """Gets the message count for a guild (How many events have happened since last cleared).
+
+    Args:
+        guild (int): Guild ID.
+
+    Returns:
+        int: The number of events that have happend.
+    """    
+    return RDB.get(f"lana:events:{guild}") or 0
+
+def add_guild_message(guild: int) -> int:
+    """Adds message to guild counter.
+
+    Args:
+        guild (int): Guild ID.
+
+    Returns:
+        int: The new count of events.
+    """    
+    key = f"lana:events:{guild}"
+    current = RDB.get(key)
+    if current == None:
+        RDB.set(key, 1, 15)
+        return 1
+    current = int(current) + 1
+    RDB.set(key, current, keepttl=True)
+    return current
+
 
 def add_moderator_action(member: int) -> int:
     """Adds to moderation action count.
