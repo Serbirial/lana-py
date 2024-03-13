@@ -25,7 +25,9 @@ print("Launching...")
 cluster.launch(config.token, cluster_total, *(_db,))
 
 print("Launched.")
+
 main_lana = LanaAR(_db)
+main_lana.cluster = cluster
 main_lana.shard_count = cluster_total
 main_lana.shard_ids = [0]
 main_lana.run(config.token)
