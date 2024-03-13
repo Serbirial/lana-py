@@ -68,7 +68,10 @@ class CoreEvents(cogs.Cog):
 			return await ctx.show_help(ctx.command)
 
 		await ctx.send("You have stumbled upon an uncaught error, the devs have been notified!\nDont panic if one of them joins the server to check out what was going on during/before the error happened.")
-		await self.error_channel.send(f"New uncaught error in {ctx.guild.name} ({ctx.guild.id}):\n{err}")
+		if self._is_main_instance:
+			await self.error_channel.send(f"New uncaught error in {ctx.guild.name} ({ctx.guild.id}):\n{err}")
+		elif not self._is_main_instance and self._parent_instance:
+			self._parent_instance.put(f"New uncaught error in {ctx.guild.name} ({ctx.guild.id}):\n{err}")
 		raise err
 
 	@events.register()
