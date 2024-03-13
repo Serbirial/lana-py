@@ -25,10 +25,11 @@ class CoreEvents(cogs.Cog):
 
 	@events.register()
 	async def on_start_shard_setup(self, bot: discord.AutoShardedClient):
+		print("Starting shard setup...")
 		await self.wait_until_ready()
 		for shard_id in bot.shards.keys():
-			shard    = bot.shards[shard_id+1]
-			shard.db = db.DB(db.mariadb_pool(shard_id+1))
+			bot.shards[shard_id+1].db = db.DB(db.mariadb_pool(shard_id+1))
+		print("Shard setup done.")
 
 	@events.register()
 	async def on_command_error(self, ctx, err):

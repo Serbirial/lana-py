@@ -170,8 +170,8 @@ class LanaAR(AutoShardedClient):
 
 	def dispatch(self, event: str, *args: tuple) -> None:
 		if event == "ready":
-			task.run_in_background(self.on_ready())
-			return self.event_manager.dispatcher("start_shard_setup", [self])
+			self.event_manager.dispatcher("start_shard_setup", [self])
+			return task.run_in_background(self.on_ready())
 
 		elif event == "message":
 			# FIXME: check for args incase it could error.
