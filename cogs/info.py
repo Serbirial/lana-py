@@ -97,12 +97,12 @@ class Information(cogs.Cog):
 		time.monotonic()
 		ping2 = (time.monotonic() - before) * 500
 		await message.edit(content="Almost there...")  # second ping
-		#shard = ""
-		#for i in bot.latencies:
-		#	if i[0] == ctx.guild.shard_id:
-		#		shard += f"Shard {i[0]}: `{round(i[1] * 500)}` ms\n"
-		#	else:
-		#		shard += f"Shard {i[0]}: `{round(i[1] * 500)}` ms\n"
+		shard = ""
+		for i in bot.latencies:
+			if i[0] == ctx.guild.shard_id:
+				shard += f"Shard {i[0]}: `{round(i[1] * 500)}` ms\n"
+			else:
+				shard += f"Shard {i[0]}: `{round(i[1] * 500)}` ms\n"
 		try:
 			api_ping = f"{await ping_api(ctx)}ms"
 		except CantReachAPI:
