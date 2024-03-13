@@ -49,6 +49,9 @@ intent = discord.Intents.all()
 
 DEFAULT_PREFIX = "lana."
 
+# FIXME: make shard compatible
+# TODO:
+#		Make all non-main instances put information into main instance with queues (all guilds, users, any global stats needed)
 async def sync_db(db_obj, bot_obj):
 	#schema = open("config/schema.sql", "r")
 	#db_obj.execute(schema.read())
@@ -112,6 +115,15 @@ class LanaAR(AutoShardedClient):
 		self._at_limit:       list = []
 		self._at_panic_limit: list = []
 
+	def __print(self, to_print):
+		"""Lazy way to suppress non-main prints.
+
+		Args:
+			to_print (str): What to print.
+		"""		
+		if self._is_main_instance:
+			print(to_print)
+
 	async def timed_remove_from_hardlimit(self, guild: int) -> None:
 		"""Sleeps 12 seconds and removed guild from the hardlimit that stops accepting events, Allowing for the bot to accept events once again from that guild.
 
@@ -167,9 +179,9 @@ class LanaAR(AutoShardedClient):
 			pass
 
 	async def download_avatar_data(self):
-		print("Downloading avatar data...")
+		self.__print("Downloading avatar data...")
 		self.avatar_data = await self.user.display_avatar.read()
-		print("Downloaded.")
+		self.__print("Downloaded.")
 
 	def dispatch(self, event: str, *args: tuple) -> None:
 		if event == "ready":
@@ -196,7 +208,7 @@ class LanaAR(AutoShardedClient):
 			# Set the error channel.
 			self.error_channel = self.get_channel(self.config.error_channel)
 		else:
-			self.error_channel = -1
+			self.error_channel = None
 		
 		# Sync the DB
 		await self.syncer(self.db, self) # FIXME: dont use that poor shards DB connection... AND make sure this is global (it can see all the guilds and/or is executed in each shard)
@@ -204,15 +216,15 @@ class LanaAR(AutoShardedClient):
 		if not self.avatar_data:
 			task.run_in_background(self.download_avatar_data())
 		if not self.loaded_cogs:
-			print("Loadings cogs and events...")
+			self.__print("Loadings cogs and events...")
 			self.loaded_cogs = True
 			await self.load_cogs_and_events()
-			print("Loaded cogs and events.")
-			print("Updating bots internal command list...")
+			self.__print("Loaded cogs and events.")
+			self.__print("Updating bots internal command list...")
 			self.cog_manager.update_all_commands()
-			print("Command list ready.")
+			self.__print("Command list ready.")
 		else:
-			print("Bot reconnected.")
+			self.__print("Bot reconnected.")
 			return
 		if not hasattr(self, 'uptime'):  # Track Uptime
 			self.uptime = datetime.datetime.utcnow()
@@ -220,16 +232,17 @@ class LanaAR(AutoShardedClient):
 		try:
 			await self.change_presence(status=discord.Status.online, activity=discord.Game(f"with {len(list(self.get_all_members()))} foxes | lana help"))
 		except ConnectionResetError:
-			print("ConnectionResetError while changing status.")
+			self.__print("ConnectionResetError while changing status.")
 
-		e = await embed.build_embed("Bot connected to discord.")
-		e.add_field(name="Guilds", value=len(self.guilds))
-		e.add_field(name="Users", value=len(self.users))
-		e.add_field(name="Shards", value=len(self.shards))
-		try:
-			await self.get_channel(self.config.output_channel).send(content="<@!309025661031415809>", embed=e)
-		except Exception as e:
-			print(f"Error while sending startup message: {e}")
+		if self._is_main_instance:
+			e = await embed.build_embed("Bot connected to discord.")
+			e.add_field(name="Guilds", value=len(self.guilds))
+			e.add_field(name="Users", value=len(self.users))
+			e.add_field(name="Shards", value=len(self.shards))
+			try:
+				await self.get_channel(self.config.output_channel).send(content="<@!309025661031415809>", embed=e)
+			except Exception as e:
+				self.__print(f"Error while sending startup message: {e}")
 
 	def on_shutdown(self, *args):
 		self.db.pool.close()
