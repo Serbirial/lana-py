@@ -5,7 +5,10 @@ from dis_command.discommand.ext import commands
 
 from aiohttp.client_exceptions import ClientConnectorError
 
-from utils import permissions
+from utils import (
+	permissions,
+	checks
+)
 
 from exceptions import CantReachAPI
 
@@ -35,6 +38,9 @@ class Utility(cogs.Cog):
 	@commands.command(aliases=['stealemoji'])
 	async def emojisteal(self, bot, ctx, emoji: discord.PartialEmoji):
 		""" Steals an emoji """
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
+		await permissions.check_permissions(ctx, manage_server=True)
 		emoji = await bot.converter.emoji(ctx, emoji)
 
 		prompt = await ctx.prompt(message="Are you sure? this will steal that emoji with the same exact name, you have 10 seconds to confirm or deny.", delete_after=True, embed=True, author_id=ctx.author.id, timeout=10)

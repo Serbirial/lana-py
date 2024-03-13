@@ -17,9 +17,18 @@ from exceptions import (
 
 from dis_command.discommand.ext.events import process_message
 
+from utils import db
+
 class CoreEvents(cogs.Cog):
 	def __init__(self, client):
 		self.client = client
+
+	@events.register()
+	async def on_start_shard_setup(self, bot: discord.AutoShardedClient):
+		await self.wait_until_ready()
+		for shard_id in bot.shards.keys():
+			shard    = bot.shards[shard_id+1]
+			shard.db = db.DB(db.mariadb_pool(shard_id+1))
 
 	@events.register()
 	async def on_command_error(self, ctx, err):

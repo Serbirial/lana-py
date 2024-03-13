@@ -3,10 +3,6 @@ from dis_command.discommand.ext import commands
 from dis_command.discommand.ext.events import inject_events
 from dis_command.discommand.ext import slash
 
-
-from json import loads
-from aiohttp.client_exceptions import ClientConnectorError
-
 from utils import redis
 from utils import permissions
 from utils.predefiner import PredefinedActions
@@ -14,7 +10,6 @@ from utils.predefiner import PredefinedActions
 from random import choice
 
 from config.config import owners
-from exceptions import CantReachAPI
 
 class Test(cogs.Cog):
 	""" Various commands that control the configuration of the bot and its workings."""

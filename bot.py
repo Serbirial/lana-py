@@ -94,8 +94,8 @@ class LanaAR(AutoShardedClient):
 
 		self.color: int = self.get_color # Get bot colors
 
-		self.db:     db.DB = db
 		self.redis:  redis.Redis = redis.RDB
+		self.db:     db.DB = db
 		self.config: config.BotConfig = config.BotConfig()
 
 		# Data filled in on_ready
@@ -108,7 +108,6 @@ class LanaAR(AutoShardedClient):
 		# DONT TOUCH
 		self._at_limit:       list = []
 		self._at_panic_limit: list = []
-
 
 	async def timed_remove_from_hardlimit(self, guild: int) -> None:
 		"""Sleeps 12 seconds and removed guild from the hardlimit that stops accepting events, Allowing for the bot to accept events once again from that guild.
@@ -171,8 +170,9 @@ class LanaAR(AutoShardedClient):
 
 	def dispatch(self, event: str, *args: tuple) -> None:
 		if event == "ready":
-			return task.run_in_background(self.on_ready())
-		
+			task.run_in_background(self.on_ready())
+			return self.event_manager.dispatcher("start_shard_setup", *(self))
+
 		elif event == "message":
 			# FIXME: check for args incase it could error.
 			message = args[0]
@@ -192,7 +192,7 @@ class LanaAR(AutoShardedClient):
 		# Set the error channel.
 		self.error_channel = self.get_channel(self.config.error_channel)
 		# Sync the DB
-		await sync_db(self.db, self)
+		await self.sync_db(self.shards[0].db, self) # FIXME: dont use that poor shards DB connection...
 
 		if not self.avatar_data:
 			task.run_in_background(self.download_avatar_data())
@@ -225,7 +225,8 @@ class LanaAR(AutoShardedClient):
 			print(f"Error while sending startup message: {e}")
 
 	def on_shutdown(self, *args):
-		self.db.pool.close()
+		for shard_id in self.shards.keys():
+			self.shards[shard_id].db.pool.close()
 		exit(0)
 
 
