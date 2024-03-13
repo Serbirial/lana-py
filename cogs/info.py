@@ -112,8 +112,8 @@ Round trip ping: {int(ping)}ms - {int(ping2)}ms
 This shards heartbeat ping: {round(bot.latency * 500)}ms
 API's ping: {api_ping}
 		""")
-		#embed.add_field(name="Shard ping", value=shard)
-		#embed.set_footer(text=f'This guild is on shard {ctx.guild.shard_id}')
+		embed.add_field(name="Shard ping", value=shard)
+		embed.set_footer(text=f'This guild is on shard {ctx.guild.shard_id}')
 		await message.edit(content=None, embed=embed)
 
 	@commands.command(aliases=['server', 'si', 'svi'])
