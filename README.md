@@ -65,7 +65,7 @@ The following tools were used in this project:
   
 ##  Requirements ##
 
-Before starting :checkered_flag:, you need to have [Git](https://git-scm.com) and [Python](https://python.org/) installed.
+Before starting, you need to have [Git](https://git-scm.com) and [Python](https://python.org/) installed, along with [Node](https://nodejs.org/en) and [PM2](https://pm2.keymetrics.io).
 
 ## Starting ##
 
