@@ -70,9 +70,10 @@ async def sync_db(db_obj, bot_obj):
 	print("Running pre-ready DB population...")
 	data = db_obj.query("SELECT id FROM guilds")
 	gids = [x.id for x in bot_obj.guilds]
-	for guild in data:
-		if guild not in gids:
-			db_obj.execute("DELETE FROM guilds WHERE id = ?", guild)
+	# FIXME 
+	#for guild in data:
+	#	if guild not in gids:
+	#		db_obj.execute("DELETE FROM guilds WHERE id = ?", guild)
 	for guild in bot_obj.guilds:
 		if guild.id not in data:
 			db_obj.execute("INSERT INTO guilds (id) VALUES (?)", guild.id)
