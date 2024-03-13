@@ -22,10 +22,11 @@ from discord import AutoShardedClient
 
 
 # Non-discord #
-
 import psutil
 import datetime
 import asyncio
+
+from multiprocessing import Queue
 
 # Config #
 
@@ -75,10 +76,8 @@ async def sync_db(db_obj, bot_obj):
 	del gids, data
 	print("DB Sync'd")
 class LanaAR(AutoShardedClient):
-	def __init__(self, database: db.DB = None, **attrs):
+	def __init__(self, is_main_instance: bool = False, database: db.DB = None, parent_queue: Queue = None):
 		super().__init__(
-			#shard_ids=[0, 1],
-			#shard_count=1,
 			case_insensitive=True,
 			max_messages=10000,
 			fetch_offline_members=True,
@@ -101,13 +100,15 @@ class LanaAR(AutoShardedClient):
 		self.config: config.BotConfig = config.BotConfig()
 
 		# Data filled in on_ready
-		self.first_run:   bool    = False
+		self.first_run:   bool  = False
 		self.loaded_cogs: bool  = False
 		self.avatar_data: bytes = None
 
 		print("Done __INIT__, waiting for ON_READY")
 
 		# DONT TOUCH
+		self._is_main_instance     = is_main_instance
+		self._parent_instance      = parent_queue
 		self._at_limit:       list = []
 		self._at_panic_limit: list = []
 
@@ -190,8 +191,12 @@ class LanaAR(AutoShardedClient):
 	async def on_ready(self):
 		'''Bot startup, sets uptime.'''
 		await self.wait_until_ready()
-		# Set the error channel.
-		self.error_channel = self.get_channel(self.config.error_channel)
+		
+		if self._is_main_instance:
+			# Set the error channel.
+			self.error_channel = self.get_channel(self.config.error_channel)
+		else:
+			self.error_channel = -1
 		
 		# Sync the DB
 		await self.syncer(self.db, self) # FIXME: dont use that poor shards DB connection... AND make sure this is global (it can see all the guilds and/or is executed in each shard)
