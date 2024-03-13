@@ -75,7 +75,7 @@ async def sync_db(db_obj, bot_obj):
 	del gids, data
 	print("DB Sync'd")
 class LanaAR(AutoShardedClient):
-	def __init__(self, db: db.DB, **attrs):
+	def __init__(self, database: db.DB = None, **attrs):
 		super().__init__(
 			#shard_ids=[0, 1],
 			#shard_count=1,
@@ -87,15 +87,17 @@ class LanaAR(AutoShardedClient):
 
 		self.syncer = sync_db
 		self.converter: converter = converter
-		self.cog_manager: CogManager = None
-		self.event_manager: EventManager = None
+		self.cog_manager: CogManager = CogManager(self)
+		self.event_manager: EventManager = EventManager(self)
 
 		self.process:   psutil.Process = psutil.Process()
 
 		self.color: int = self.get_color # Get bot colors
 
 		self.redis:  redis.Redis = redis.RDB
-		self.db:     db.DB = db
+		self.db:     db.DB = database
+		if self.db == None:
+			self.db = db.DB(db.mariadb_pool(999))
 		self.config: config.BotConfig = config.BotConfig()
 
 		# Data filled in on_ready
@@ -249,10 +251,9 @@ class LanaAR(AutoShardedClient):
 			return prefixes
 
 if __name__ == "__main__":
-	lana = LanaAR(db.DB(db.mariadb_pool(0)))
+	lana = LanaAR()
 	try:
 		lana.panel = db.DB(db.mariadb_pool(1, "private/config/private_db.json"))
 	except FileNotFoundError:
 		pass
-	inject_into_bot(lana)
 	lana.run(lana.config.token)
