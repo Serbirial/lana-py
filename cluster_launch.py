@@ -8,16 +8,20 @@ _db = db.DB(db.mariadb_pool(0))
 
 
 
-cluster = collection.ThreadedCluster(name="cluster_one", id=1)
+cluster = collection.ThreadedCluster(name="cluster_one", id=1, client=lana)
 cluster_schema = [
-	[0,1], # Thread 1 handles shards 0-1 
-	[2,3]  # Thread 2 handles shards 2-3
+	[1,2], # Thread 1 handles shards 0-1 
+	[3,4]  # Thread 2 handles shards 2-3
 ]
-cluster_total = 4
+cluster_total = 5
 
-cluster.set_client(lana)
+print("Creating threads...")
 
 for ids in cluster_schema:
 	cluster.add_thread(ids)
 
+print("Launching...")
+
 cluster.launch(config.token, cluster_total, *(_db,))
+
+print("Done.")
