@@ -174,7 +174,7 @@ class Config(cogs.Cog):
 		await permissions.check_permissions(ctx, manage_roles=True)
 		limit = await bot.converter.integer(limit) or None
 		if limit == None:
-			current = ctx.current_shard.db.query_row("SELECT message_limit FROM panic WHERE guild = ?", ctx.guild.id)
+			current = bot.db.query_row("SELECT message_limit FROM panic WHERE guild = ?", ctx.guild.id)
 			if not current:
 				return await ctx.send("There is no limit currently, please run the toggle command to initialize the panic config.")
 			else:
