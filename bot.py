@@ -192,7 +192,7 @@ class LanaAR(AutoShardedClient):
 		# Set the error channel.
 		self.error_channel = self.get_channel(self.config.error_channel)
 		# Sync the DB
-		await self.syncer(self.shards[0].db, self) # FIXME: dont use that poor shards DB connection...
+		await self.syncer(self.db, self) # FIXME: dont use that poor shards DB connection... AND make sure this is global (it can see all the guilds and/or is executed in each shard)
 
 		if not self.avatar_data:
 			task.run_in_background(self.download_avatar_data())
