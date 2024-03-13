@@ -32,9 +32,9 @@
   <a href="#about">About</a> &#xa0; | &#xa0; 
   <a href="#features">Features</a> &#xa0; | &#xa0;
   <a href="#stack">Stack</a> &#xa0; | &#xa0;
-  <a href="#white_check_mark-requirements">Requirements</a> &#xa0; | &#xa0;
-  <a href="#checkered_flag-starting">Starting</a> &#xa0; | &#xa0;
-  <a href="#memo-license">License</a> &#xa0; | &#xa0;
+  <a href="#requirements">Requirements</a> &#xa0; | &#xa0;
+  <a href="#starting">Starting</a> &#xa0; | &#xa0;
+  <a href="#license">License</a> &#xa0; | &#xa0;
   <a href="https://github.com/Serbirial" target="_blank">Author</a>
 </p>
 
@@ -63,11 +63,11 @@ The following tools were used in this project:
 - [Discord.py Latest](https://github.com/Rapptz/discord.py)
 - [PM2](https://pm2.keymetrics.io)
   
-## :white_check_mark: Requirements ##
+##  Requirements ##
 
 Before starting :checkered_flag:, you need to have [Git](https://git-scm.com) and [Python](https://python.org/) installed.
 
-## :checkered_flag: Starting ##
+## Starting ##
 
 ```bash
 # Clone this project
@@ -88,7 +88,7 @@ $ pm2 start
 
 Make sure you setup the database (MariaDB) with the schema files in the [Schema](https://github.com/Serbirial/lana-py/blob/main/config/schema.sql) file.
 
-## :memo: License ##
+## License ##
 
 This project is under the (license in progress). For more details, see the [LICENSE](LICENSE.md) file.
 
