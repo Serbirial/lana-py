@@ -218,7 +218,7 @@ class LanaAR(Client):
 		e = await embed.build_embed("Bot connected to discord.")
 		e.add_field(name="Guilds", value=len(self.guilds))
 		e.add_field(name="Users", value=len(self.users))
-		e.add_field(name="Shards", value=len(self.shards))
+		#e.add_field(name="Shards", value=len(self.shards))
 		try:
 			await self.get_channel(self.config.output_channel).send(content="<@!309025661031415809>", embed=e)
 		except Exception as e:

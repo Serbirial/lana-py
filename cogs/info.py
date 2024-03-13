@@ -97,12 +97,12 @@ class Information(cogs.Cog):
 		time.monotonic()
 		ping2 = (time.monotonic() - before) * 500
 		await message.edit(content="Almost there...")  # second ping
-		shard = ""
-		for i in bot.latencies:
-			if i[0] == ctx.guild.shard_id:
-				shard += f"Shard {i[0]}: `{round(i[1] * 500)}` ms\n"
-			else:
-				shard += f"Shard {i[0]}: `{round(i[1] * 500)}` ms\n"
+		#shard = ""
+		#for i in bot.latencies:
+		#	if i[0] == ctx.guild.shard_id:
+		#		shard += f"Shard {i[0]}: `{round(i[1] * 500)}` ms\n"
+		#	else:
+		#		shard += f"Shard {i[0]}: `{round(i[1] * 500)}` ms\n"
 		try:
 			api_ping = f"{await ping_api(ctx)}ms"
 		except CantReachAPI:
@@ -112,8 +112,8 @@ Round trip ping: {int(ping)}ms - {int(ping2)}ms
 This shards heartbeat ping: {round(bot.latency * 500)}ms
 API's ping: {api_ping}
 		""")
-		embed.add_field(name="Shard ping", value=shard)
-		embed.set_footer(text=f'This guild is on shard {ctx.guild.shard_id}')
+		#embed.add_field(name="Shard ping", value=shard)
+		#embed.set_footer(text=f'This guild is on shard {ctx.guild.shard_id}')
 		await message.edit(content=None, embed=embed)
 
 	@commands.command(aliases=['server', 'si', 'svi'])
