@@ -24,14 +24,6 @@ class CoreEvents(cogs.Cog):
 		self.client = client
 
 	@events.register()
-	async def on_start_shard_setup(self, bot: discord.AutoShardedClient):
-		print("Starting shard setup...")
-		await self.wait_until_ready()
-		for shard_id in bot.shards.keys():
-			bot.shards[shard_id+1].db = db.DB(db.mariadb_pool(shard_id+1))
-		print("Shard setup done.")
-
-	@events.register()
 	async def on_command_error(self, ctx, err):
 		if isinstance(err, CantReachAPI) or isinstance(err, ConnectionRefusedError):
 			return await ctx.send("The bot cannot reach its API right now, so it cannot make changes to configs.")

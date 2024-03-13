@@ -109,6 +109,18 @@ class LanaAR(AutoShardedClient):
 		self._at_limit:       list = []
 		self._at_panic_limit: list = []
 
+	async def setup_shards(self):
+		print("Shard setup started (on_ready)...")
+		for shard_id in self.shards.keys():
+			shard = self.shards[shard_id]
+			if hasattr(shard, "db"):
+				pass
+			else:
+				print(f"Shard {shard_id} DB Connection setup.")
+				shard.db = db.DB(db.mariadb_pool(shard_id+1))
+				self.shards[shard_id] = shard
+		print("Shard setup done.")
+
 	async def timed_remove_from_hardlimit(self, guild: int) -> None:
 		"""Sleeps 12 seconds and removed guild from the hardlimit that stops accepting events, Allowing for the bot to accept events once again from that guild.
 
@@ -170,7 +182,6 @@ class LanaAR(AutoShardedClient):
 
 	def dispatch(self, event: str, *args: tuple) -> None:
 		if event == "ready":
-			self.event_manager.dispatcher("start_shard_setup", [self])
 			return task.run_in_background(self.on_ready())
 
 		elif event == "message":
@@ -191,6 +202,10 @@ class LanaAR(AutoShardedClient):
 		await self.wait_until_ready()
 		# Set the error channel.
 		self.error_channel = self.get_channel(self.config.error_channel)
+		
+		# Setup the shards.
+		await self.setup_shards()
+		
 		# Sync the DB
 		await self.syncer(self.db, self) # FIXME: dont use that poor shards DB connection... AND make sure this is global (it can see all the guilds and/or is executed in each shard)
 
