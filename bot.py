@@ -117,7 +117,7 @@ class LanaAR(AutoShardedClient):
 				pass
 			else:
 				print(f"Shard {shard_id} DB Connection setup.")
-				shard.db = db.DB(db.mariadb_pool(shard_id+1))
+				shard.db = db.DB(db.mariadb_pool(shard_id+2)) # +2 because there are already two pools under 0 and 1
 				self.shards[shard_id] = shard
 		print("Shard setup done.")
 
