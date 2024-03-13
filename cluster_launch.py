@@ -28,4 +28,4 @@ print("Launched.")
 main_lana = LanaAR(_db)
 main_lana.shard_count = cluster_total
 main_lana.shard_ids = [0]
-main_lana.run()
+main_lana.run(config.token)
