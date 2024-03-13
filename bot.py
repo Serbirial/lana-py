@@ -18,7 +18,7 @@ from dis_command.discommand.ext import (
 	converter
 )
 
-from discord import Client
+from discord import AutoShardedClient
 
 
 # Non-discord #
@@ -74,7 +74,7 @@ async def sync_db(db_obj, bot_obj):
 			db_obj.execute("INSERT INTO guilds (id) VALUES (?)", guild.id)
 	del gids, data
 	print("DB Sync'd")
-class LanaAR(Client):
+class LanaAR(AutoShardedClient):
 	def __init__(self, db: db.DB, **attrs):
 		super().__init__(
 			#shard_ids=[0, 1],
