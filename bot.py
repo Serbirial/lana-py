@@ -52,11 +52,8 @@ DEFAULT_PREFIX = "lana."
 # FIXME: make shard compatible
 # TODO:
 #		Make all non-main instances put information into main instance with queues (all guilds, users, any global stats needed)
-async def sync_db(db_obj, bot_obj):
-	#schema = open("config/schema.sql", "r")
-	#db_obj.execute(schema.read())
-	#schema.close()
 
+def pre_run_check(db_obj):
 	check = db_obj.query("SELECT * FROM owners")
 	if check == None or len(check) == 0:
 		owner_id = input("No owner IDs found in database, please paste your discord accounts ID > ")
@@ -67,18 +64,17 @@ async def sync_db(db_obj, bot_obj):
 			exit(0)
 		db_obj.execute("INSERT INTO owners (id, level) VALUES (?,?)", owner_id, "0")
 
-	print("Running pre-ready DB population...")
+
+async def sync_db(db_obj, guilds):
 	data = db_obj.query("SELECT id FROM guilds")
-	gids = [x.id for x in bot_obj.guilds]
 	# FIXME 
 	#for guild in data:
 	#	if guild not in gids:
 	#		db_obj.execute("DELETE FROM guilds WHERE id = ?", guild)
-	for guild in bot_obj.guilds:
-		if guild.id not in data:
-			db_obj.execute("INSERT INTO guilds (id) VALUES (?)", guild.id)
-	del gids, data
-	print("DB Sync'd")
+	for gid in guilds:
+		if gid not in data:
+			db_obj.execute("INSERT INTO guilds (id) VALUES (?)", gid)
+
 class LanaAR(AutoShardedClient):
 	def __init__(self, is_main_instance: bool = False, database: db.DB = None, parent_queue: Queue = None):
 		super().__init__(
@@ -115,6 +111,25 @@ class LanaAR(AutoShardedClient):
 		self._parent_instance      = parent_queue
 		self._at_limit:       list = []
 		self._at_panic_limit: list = []
+
+	async def process_queue(self):
+		"""Processes the Queue full of information from 
+		"""		
+		queue_schema = {
+			"error": self.error_channel.send,
+			"notice": self.__print
+		}
+		while True:
+			q_event, q_data = self._parent_instance.get()
+			if q_event == "db_sync":
+				print("DB Sync requested by sub-instance.")
+				await self.syncer(self.db, q_data)
+				print("DB Sync finished.")
+			elif q_event == "shutdown":
+				await self.logout()
+
+			elif q_event in queue_schema:
+				queue_schema[q_event](q_data)
 
 	def __print(self, to_print):
 		"""Lazy way to suppress non-main prints.
@@ -212,7 +227,13 @@ class LanaAR(AutoShardedClient):
 			self.error_channel = None
 		
 		# Sync the DB
-		await self.syncer(self.db, self) # FIXME: dont use that poor shards DB connection... AND make sure this is global (it can see all the guilds and/or is executed in each shard)
+		if self._is_main_instance:
+			print("Running DB Sync...")
+			await self.syncer(self.db, [x.id for x in self.guilds]) # FIXME: dont use that poor shards DB connection... AND make sure this is global (it can see all the guilds and/or is executed in each shard)
+			print("DB Sync'd")
+
+		else:
+			self._parent_instance.put(("db_sync", [x.id for x in self.guilds]))
 
 		if not self.avatar_data:
 			task.run_in_background(self.download_avatar_data())
@@ -225,7 +246,11 @@ class LanaAR(AutoShardedClient):
 			self.cog_manager.update_all_commands()
 			self.__print("Command list ready.")
 		else:
-			self.__print("Bot reconnected.")
+			if self._is_main_instance:
+				print("Bot reconnected.")
+			else:
+				self._parent_instance.put(("notice", "Thread instance reconnected"))
+
 			return
 		if not hasattr(self, 'uptime'):  # Track Uptime
 			self.uptime = datetime.datetime.utcnow()
@@ -244,6 +269,9 @@ class LanaAR(AutoShardedClient):
 				await self.get_channel(self.config.output_channel).send(content="<@!309025661031415809>", embed=e)
 			except Exception as e:
 				self.__print(f"Error while sending startup message: {e}")
+		else:
+			self._parent_instance.put(("notice", "Thread instance started."))
+
 
 	def on_shutdown(self, *args):
 		self.db.pool.close()
