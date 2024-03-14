@@ -111,7 +111,7 @@ class LanaAR(AutoShardedClient):
 		self._parent_instance      = parent_queue
 		self._at_limit:       list = []
 		self._at_panic_limit: list = []
-		if self.is_main_instance:
+		if self._is_main_instance:
 			self.queue_task = task.run_in_background(self.process_queue())
 
 	async def process_queue(self):
