@@ -117,19 +117,21 @@ class LanaAR(AutoShardedClient):
 		"""		
 		queue_schema = {
 			"error": self.error_channel.send,
-			"notice": self.__print
 		}
 		while True:
-			q_event, q_data = self._parent_instance.get()
+			q_event, q_data = self._parent_instance.get_nowait()
 			if q_event == "db_sync":
 				print("DB Sync requested by sub-instance.")
 				await self.syncer(self.db, q_data)
 				print("DB Sync finished.")
+			elif q_event == "notice":
+				print(q_data)
 			elif q_event == "shutdown":
 				await self.logout()
 
 			elif q_event in queue_schema:
-				queue_schema[q_event](q_data)
+				await queue_schema[q_event](q_data)
+			await asyncio.sleep(5)
 
 	def __print(self, to_print):
 		"""Lazy way to suppress non-main prints.
