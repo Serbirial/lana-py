@@ -51,10 +51,10 @@ class IPCClient:
 
 	async def notify(self, message):
 		while self.connection == None:
-			asyncio.sleep(0.3)
+			await asyncio.sleep(0.3)
 		await self.send(self.connection, "notify", {"args": message})
 
 	async def sync(self):
 		while self.connection == None:
-			asyncio.sleep(0.3)
+			await asyncio.sleep(0.3)
 		await self.send(self.connection, "db_sync", {"args": [x.id for x in self.client.guilds]})
