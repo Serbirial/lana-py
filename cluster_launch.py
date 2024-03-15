@@ -12,7 +12,7 @@ db = database.DB(database.mariadb_pool(0))
 main_lana = LanaAR("lana_main", True, startup_lock, db)
 lana = LanaAR
 
-main_lana.ipc = IPCServer(main_lana, "localhost", 69696)
+main_lana.ipc = IPCServer(main_lana, "localhost", 62435)
 main_lana.cluster = collection.ThreadedCluster(name="cluster_one", id=1, client=lana)
 
 cluster_schema = [
