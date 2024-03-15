@@ -1,13 +1,15 @@
 from ipc import IPCServer
 from bot import LanaAR, config
-from multiprocessing import Queue
+from multiprocessing import Lock
 from dis_command.discommand.sharding import collection
 from utils import db as database
+
+startup_lock = Lock()
 
 config = config.BotConfig()
 db = database.DB(database.mariadb_pool(0))
 
-main_lana = LanaAR("lana_main", True, db)
+main_lana = LanaAR("lana_main", True, startup_lock, db)
 lana = LanaAR
 
 main_lana.ipc = IPCServer(main_lana, "localhost", 69696)
@@ -32,4 +34,8 @@ print("Launched threads.\nLaunching main bot on shard 0.")
 
 main_lana.shard_count = cluster_total
 main_lana.shard_ids = [0]
+
+# Lock the startup lock, and release it in the main instance when the instance is fully ready.
+startup_lock.acquire()
+
 main_lana.run(config.token)

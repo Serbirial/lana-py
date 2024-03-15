@@ -26,6 +26,7 @@ import psutil
 import datetime
 import asyncio
 
+from multiprocessing.synchronize import Lock
 from ipc import IPCServer
 from utils import ipc
 
@@ -77,7 +78,7 @@ async def sync_db(db_obj, guilds):
 			db_obj.execute("INSERT INTO guilds (id) VALUES (?)", gid)
 
 class LanaAR(AutoShardedClient):
-	def __init__(self, internal_name: str = None,  is_main_instance: bool = False, database: db.DB = None):
+	def __init__(self, internal_name: str = None,  is_main_instance: bool = False, startup_lock: Lock = None, database: db.DB = None):
 		super().__init__(
 			case_insensitive=True,
 			max_messages=10000,
@@ -111,6 +112,7 @@ class LanaAR(AutoShardedClient):
 		self.internal_name          = internal_name
 		self.ipc: IPCServer         = None   
 		self._is_main_instance      = is_main_instance
+		self.__lock                 = startup_lock
 		self._at_limit:       list  = []
 		self._at_panic_limit: list  = []
 
@@ -298,6 +300,8 @@ class LanaAR(AutoShardedClient):
 				await self.get_channel(self.config.output_channel).send(content="<@!309025661031415809>", embed=e)
 			except Exception as e:
 				self.__print(f"Error while sending startup message: {e}")
+			if self._is_main_instance and self.__lock != None:
+				self.__lock.release()
 		else:
 			self.ipc.notify("Thread instance started.")
 
