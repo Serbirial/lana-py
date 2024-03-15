@@ -45,7 +45,7 @@ class IPCClient:
 		try:
 			async with websockets.connect(self.make_uri()) as connection:
 				self.connection = connection 
-				self.connection_handler(connection)
+				await self.connection_handler(connection)
 		except websockets.exceptions.ConnectionClosedError or websockets.exceptions.ConnectionClosedOK:
 			print("CRITICAL: IPC CLIENT CONNECTION WAS CLOSED OR LOST")
 
