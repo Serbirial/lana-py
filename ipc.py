@@ -24,7 +24,7 @@ class IPCServer:
 		self.VALID_EVENTS = {
 			"identify": None,
 			"db_sync": None,
-			"notice": None,
+			"notify": None,
 			"broadcast": self.broadcast
 
 		}

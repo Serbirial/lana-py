@@ -254,7 +254,7 @@ class LanaAR(AutoShardedClient):
 				# Start the IPC server.
 				self.ipc_task = task.create_task(self.ipc.start())
 				# Set IPC event functions.
-				self.ipc.VALID_EVENTS["notice"] = self.__print
+				self.ipc.VALID_EVENTS["notify"] = self.__print
 				self.ipc.VALID_EVENTS["db_sync"] = self.syncer
 
 		else:
