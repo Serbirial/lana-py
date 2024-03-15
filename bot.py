@@ -252,7 +252,7 @@ class LanaAR(AutoShardedClient):
 			# Check for IPC (bot is ran clustered and is main instance)
 			if self.ipc != None:
 				# Start the IPC server.
-				self.ipc_task = task.create_task(await self.ipc.start())
+				self.ipc_task = task.create_task(self.ipc.start())
 				# Set IPC event functions.
 				self.ipc.VALID_EVENTS["notice"] = self.__print
 				self.ipc.VALID_EVENTS["db_sync"] = self.syncer
