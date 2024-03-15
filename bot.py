@@ -154,7 +154,7 @@ class LanaAR(AutoShardedClient):
 
 		Args:
 			to_print (str): What to print.
-		"""		
+		"""	
 		if self._is_main_instance:
 			print(to_print)
 
