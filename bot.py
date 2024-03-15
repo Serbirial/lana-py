@@ -77,7 +77,7 @@ async def sync_db(db_obj, guilds):
 			db_obj.execute("INSERT INTO guilds (id) VALUES (?)", gid)
 
 class LanaAR(AutoShardedClient):
-	def __init__(self, internal_name: str,  is_main_instance: bool = False, database: db.DB = None):
+	def __init__(self, internal_name: str = None,  is_main_instance: bool = False, database: db.DB = None):
 		super().__init__(
 			case_insensitive=True,
 			max_messages=10000,
@@ -235,6 +235,10 @@ class LanaAR(AutoShardedClient):
 		'''Bot startup, sets uptime.'''
 		await self.wait_until_ready()
 		
+		if self.internal_name == None:
+			self.ipc.notify("SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
+			exit(0)
+
 		if self._is_main_instance:
 			# Set the error channel.
 			self.error_channel = self.get_channel(self.config.error_channel)
