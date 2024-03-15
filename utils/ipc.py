@@ -32,7 +32,8 @@ class IPCClient:
 	async def connection_handler(self, connection):
 		await self.auth_handshake(connection)
 		while connection.closed != True:
-			asyncio.Future()
+			event, data = await self.recv(connection)
+			pass
 
 	async def start(self):
 		await self.connection_handler(self.connection)
