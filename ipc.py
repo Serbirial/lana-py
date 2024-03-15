@@ -4,7 +4,7 @@ from json import loads
 
 def format_event(raw_event_data, delim: str = "\n"): # This code is wacky...
 	event_name, event_data = raw_event_data.split(delim)
-	return event_name, loads(event_data)
+	return event_name, loads(event_data..replace("\'", "\""))
 
 def format_outgoing_event(name, data):
 	return f"{name}\n{data}"
@@ -104,7 +104,7 @@ class IPCServer:
 		print(f">>> Closed connection ({reference})\n")
 		return
 
-	def cleanup_before_exit():
+	def cleanup_before_exit(self):
 		print("\n----    Exiting IPC server.    -----\n")
 		print("Done.")
 

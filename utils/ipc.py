@@ -4,7 +4,7 @@ from json import loads
 
 def format_event(raw_event_data, delim: str = "\n"): # This code is wacky...
 	event_name, event_data = raw_event_data.split(delim)
-	return event_name, loads(event_data)
+	return event_name, loads(event_data.replace("\'", "\""))
 def format_outgoing_event(name, data):
 	return f"{name}\n{data}"
 
