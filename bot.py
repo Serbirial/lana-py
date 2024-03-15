@@ -106,8 +106,6 @@ class LanaAR(AutoShardedClient):
 		self.loaded_cogs: bool  = False
 		self.avatar_data: bytes = None
 
-		print("Done __INIT__, waiting for ON_READY")
-
 		# DONT TOUCH
 		self.internal_name          = internal_name
 		self.ipc: IPCServer         = None
@@ -116,6 +114,13 @@ class LanaAR(AutoShardedClient):
 		self.__sub_has_gotten_lock  = False
 		self._at_limit:       list  = []
 		self._at_panic_limit: list  = []
+
+		if not self._is_main_instance:
+			while not self.__sub_has_gotten_lock:
+				self.__lock.acquire(False)
+				self.__sub_has_gotten_lock = True
+
+		print("Done __INIT__, waiting for ON_READY")
 
 	async def process_parent_queue(self):
 		"""Processes the Queue full of information from sub instances.
@@ -236,10 +241,6 @@ class LanaAR(AutoShardedClient):
 
 	async def on_ready(self):
 		'''Bot startup, sets uptime.'''
-		if not self._is_main_instance:
-			while not self.__sub_has_gotten_lock:
-				self.__lock.acquire(True)
-				self.__sub_has_gotten_lock = True
 		await self.wait_until_ready()
 		
 		if self.internal_name == None:
