@@ -7,7 +7,7 @@ from utils import db as database
 config = config.BotConfig()
 db = database.DB(database.mariadb_pool(0))
 
-main_lana = LanaAR("lana_main" ,True, db)
+main_lana = LanaAR("lana_main", True, db)
 lana = LanaAR
 
 main_lana.ipc = IPCServer(main_lana, "localhost", 69696)
@@ -26,7 +26,7 @@ for ids in cluster_schema:
 
 print("Launching...")
 
-main_lana.cluster.launch(config.token, cluster_total, *(False, db))
+main_lana.cluster.launch(config.token, cluster_total, *(None, False, db))
 
 print("Launched threads.\nLaunching main bot on shard 0.")
 
