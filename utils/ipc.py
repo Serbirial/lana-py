@@ -18,6 +18,10 @@ class IPCClient:
 		await connection.send(format_outgoing_event(event_name, event_data))
 
 	async def recv(self, connection):
+		event, data = await connection.recv(connection)
+		return event, data
+
+	async def auth_handshake(self, connection): # FIXME actual auth
 		event, data = await self.recv(connection)
 		if event == "identify":
 			await self.send(connection, "identify", {"ref": self.client.internal_name})
@@ -25,17 +29,19 @@ class IPCClient:
 			if event != "done":
 				print("CRITICAL: Something went wrong during IPC Client auth.")
 
-	async def auth_handshake(self, connection): # FIXME actual auth
-		data = await connection.recv()
-
 	async def connection_handler(self, connection):
+		await self.auth_handshake(connection)
 		while connection.closed != True:
-			pass
+			event, data = await self.recv(connection)
+			pass # client shouldnt really care about receiving after the auth
+
+	async def start(self):
+		await self.connection_handler(self.connection)
 
 	def make_uri(self) -> str:
 		return f"ws://{self.host}:{self.port}"
 	
-	async def start(self):
+	async def init(self):
 		try:
 			async with websockets.connect(self.make_uri()) as connection:
 				self.connection = connection 
