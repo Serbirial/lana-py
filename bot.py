@@ -26,7 +26,8 @@ import psutil
 import datetime
 import asyncio
 
-from multiprocessing import Queue
+from ipc import IPCServer
+from utils import ipc
 
 # Config #
 
@@ -76,7 +77,7 @@ async def sync_db(db_obj, guilds):
 			db_obj.execute("INSERT INTO guilds (id) VALUES (?)", gid)
 
 class LanaAR(AutoShardedClient):
-	def __init__(self, is_main_instance: bool = False, database: db.DB = None, parent_queue: Queue = None):
+	def __init__(self, internal_name: str,  is_main_instance: bool = False, database: db.DB = None):
 		super().__init__(
 			case_insensitive=True,
 			max_messages=10000,
@@ -107,19 +108,20 @@ class LanaAR(AutoShardedClient):
 		print("Done __INIT__, waiting for ON_READY")
 
 		# DONT TOUCH
-		self._is_main_instance     = is_main_instance
-		self._parent_instance      = parent_queue
-		self._at_limit:       list = []
-		self._at_panic_limit: list = []
+		self.internal_name          = internal_name
+		self.ipc: IPCServer         = None   
+		self._is_main_instance      = is_main_instance
+		self._at_limit:       list  = []
+		self._at_panic_limit: list  = []
 
-	async def process_queue(self):
-		"""Processes the Queue full of information from 
+	async def process_parent_queue(self):
+		"""Processes the Queue full of information from sub instances.
 		"""		
 		queue_schema = {
 			"error": self.error_channel.send,
 		}
 		while True:
-			q_event, q_data = self._parent_instance.get_nowait()
+			q_event, q_data = self._parent_instance_queue.get()
 			if q_event == "db_sync":
 				print("DB Sync requested by sub-instance.")
 				await self.syncer(self.db, q_data)
@@ -131,7 +133,18 @@ class LanaAR(AutoShardedClient):
 
 			elif q_event in queue_schema:
 				await queue_schema[q_event](q_data)
-			await asyncio.sleep(5)
+
+	async def process_sub_queue(self):
+		"""Processes the Queue full of information from parent instances
+		"""		
+		while True:
+			q_event, q_data = self._sub_instance_queue.get()
+			if q_event == "execute":
+				func = getattr(self, q_data[0])
+				func(q_data[1]) # FIXME wont run async functions
+			elif q_event == "sync":
+				self._parent_instance_queue.put(("db_sync", [x.id for x in self.guilds]))
+
 
 	def __print(self, to_print):
 		"""Lazy way to suppress non-main prints.
@@ -225,19 +238,27 @@ class LanaAR(AutoShardedClient):
 		if self._is_main_instance:
 			# Set the error channel.
 			self.error_channel = self.get_channel(self.config.error_channel)
-			# Start the queue processing loop
-			self.queue_task = task.run_in_background(self.process_queue())
+			# Check for IPC (bot is ran clustered and is main instance)
+			if self.ipc != None:
+				# Start the IPC server.
+				self.ipc_task = task.create_task(self.ipc.start())
+				# Set IPC event functions.
+				self.ipc.VALID_EVENTS["notice"] = self.__print
+				self.ipc.VALID_EVENTS["db_sync"] = self.syncer
+
 		else:
 			self.error_channel = None
-		
+			# Start the IPC client
+			self.ipc = ipc.IPCClient(self, "localhost", 69696)
+			self.ipc_task = task.create_task(self.ipc.start())
+
 		# Sync the DB
 		if self._is_main_instance:
 			print("Running DB Sync...")
-			await self.syncer(self.db, [x.id for x in self.guilds]) # FIXME: dont use that poor shards DB connection... AND make sure this is global (it can see all the guilds and/or is executed in each shard)
+			await self.syncer(self.db, [x.id for x in self.guilds])
 			print("DB Sync'd")
-
 		else:
-			self._parent_instance.put(("db_sync", [x.id for x in self.guilds]))
+			self.ipc.sync()
 
 		if not self.avatar_data:
 			task.run_in_background(self.download_avatar_data())
@@ -253,7 +274,7 @@ class LanaAR(AutoShardedClient):
 			if self._is_main_instance:
 				print("Bot reconnected.")
 			else:
-				self._parent_instance.put(("notice", "Thread instance reconnected"))
+				self.ipc.notify("Thread instance reconnected")
 
 			return
 		if not hasattr(self, 'uptime'):  # Track Uptime
@@ -274,8 +295,7 @@ class LanaAR(AutoShardedClient):
 			except Exception as e:
 				self.__print(f"Error while sending startup message: {e}")
 		else:
-			self._parent_instance.put(("notice", "Thread instance started."))
-
+			self.ipc.notify("Thread instance started.")
 
 	def on_shutdown(self, *args):
 		self.db.pool.close()
