@@ -261,7 +261,7 @@ class LanaAR(AutoShardedClient):
 			self.error_channel = None
 			# Start the IPC client
 			self.ipc = ipc.IPCClient(self, "localhost", 62435)
-			self.ipc.init()
+			await self.ipc.init()
 			self.ipc_task = task.create_task(self.ipc.start())
 
 		# Sync the DB
