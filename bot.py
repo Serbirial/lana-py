@@ -238,7 +238,7 @@ class LanaAR(AutoShardedClient):
 		await self.wait_until_ready()
 		
 		if self.internal_name == None:
-			self.ipc.notify("SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
+			await self.ipc.notify("SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
 			exit(0)
 
 		if self._is_main_instance:
@@ -247,16 +247,16 @@ class LanaAR(AutoShardedClient):
 			# Check for IPC (bot is ran clustered and is main instance)
 			if self.ipc != None:
 				# Start the IPC server.
-				self.ipc_task = task.create_task(self.ipc.start())
+				self.ipc_task = task.create_task(await self.ipc.start())
 				# Set IPC event functions.
-				self.ipc.VALID_EVENTS["notice"] = self.__print
-				self.ipc.VALID_EVENTS["db_sync"] = self.syncer
+				await self.ipc.VALID_EVENTS["notice"] = self.__print
+				await self.ipc.VALID_EVENTS["db_sync"] = self.syncer
 
 		else:
 			self.error_channel = None
 			# Start the IPC client
 			self.ipc = ipc.IPCClient(self, "localhost", 69696)
-			self.ipc_task = task.create_task(self.ipc.start())
+			self.ipc_task = task.create_task(await self.ipc.start())
 
 		# Sync the DB
 		if self._is_main_instance:
@@ -264,7 +264,7 @@ class LanaAR(AutoShardedClient):
 			await self.syncer(self.db, [x.id for x in self.guilds])
 			print("DB Sync'd")
 		else:
-			self.ipc.sync()
+			await self.ipc.sync()
 
 		if not self.avatar_data:
 			task.run_in_background(self.download_avatar_data())
@@ -280,7 +280,7 @@ class LanaAR(AutoShardedClient):
 			if self._is_main_instance:
 				print("Bot reconnected.")
 			else:
-				self.ipc.notify("Thread instance reconnected")
+				await self.ipc.notify("Thread instance reconnected")
 
 			return
 		if not hasattr(self, 'uptime'):  # Track Uptime
@@ -303,7 +303,7 @@ class LanaAR(AutoShardedClient):
 			if self._is_main_instance and self.__lock != None:
 				self.__lock.release()
 		else:
-			self.ipc.notify("Thread instance started.")
+			await self.ipc.notify("Thread instance started.")
 
 	def on_shutdown(self, *args):
 		self.db.pool.close()
