@@ -36,18 +36,15 @@ class IPCClient:
 			pass
 
 	async def start(self):
-		await self.connection_handler(self.connection)
-
-	def make_uri(self) -> str:
-		return f"ws://{self.host}:{self.port}"
-	
-	async def init(self):
 		try:
 			async with websockets.connect(self.make_uri()) as connection:
 				self.connection = connection 
+				await self.connection_handler(self.connection)
 		except websockets.exceptions.ConnectionClosedError or websockets.exceptions.ConnectionClosedOK:
 			print("CRITICAL: IPC CLIENT CONNECTION WAS CLOSED OR LOST")
 
+	def make_uri(self) -> str:
+		return f"ws://{self.host}:{self.port}"
 
 	async def notify(self, message):
 		await self.send(self.connection, "notify", {"args": message})
