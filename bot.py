@@ -117,7 +117,7 @@ class LanaAR(AutoShardedClient):
 
 		if not self._is_main_instance:
 			while not self.__sub_has_gotten_lock:
-				self.__lock.acquire(False)
+				self.__lock.acquire()
 				self.__sub_has_gotten_lock = True
 
 		print("Done __INIT__, waiting for ON_READY")
@@ -262,7 +262,7 @@ class LanaAR(AutoShardedClient):
 			self.error_channel = None
 			# Start the IPC client
 			self.ipc = ipc.IPCClient(self, "localhost", 62435)
-			self.ipc_task = task.create_task(await self.ipc.start())
+			self.ipc_task = task.create_task(self.ipc.start())
 
 		# Sync the DB
 		if self._is_main_instance:
