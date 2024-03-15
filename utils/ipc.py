@@ -42,7 +42,7 @@ class IPCClient:
 			print("CRITICAL: IPC CLIENT CONNECTION WAS CLOSED OR LOST")
 
 	async def start(self):
-		self.connection_handler()
+		await self.connection_handler()
 
 	def make_uri(self) -> str:
 		return f"ws://{self.host}:{self.port}"
