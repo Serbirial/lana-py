@@ -306,7 +306,8 @@ class LanaAR(AutoShardedClient):
 			if self._is_main_instance and self.__lock != None:
 				self.__lock.release()
 		else:
-			await self.ipc.sync()
+			if not len(self.guilds) == 0:
+				await self.ipc.sync()
 			self.__lock.release()
 			await self.ipc.notify("Thread instance started.")
 
