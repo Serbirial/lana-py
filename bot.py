@@ -268,8 +268,6 @@ class LanaAR(AutoShardedClient):
 			print("Running DB Sync...")
 			await self.syncer(self.db, [x.id for x in self.guilds])
 			print("DB Sync'd")
-		else:
-			await self.ipc.sync()
 
 		if not self.avatar_data:
 			task.run_in_background(self.download_avatar_data())
@@ -308,6 +306,7 @@ class LanaAR(AutoShardedClient):
 			if self._is_main_instance and self.__lock != None:
 				self.__lock.release()
 		else:
+			await self.ipc.sync()
 			self.__lock.release()
 			await self.ipc.notify("Thread instance started.")
 

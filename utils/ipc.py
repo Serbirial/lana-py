@@ -13,6 +13,7 @@ class IPCClient:
 		self.client = client
 		self.host = host_addr
 		self.port = host_port
+		self.connection = None
 
 	async def send(self, connection, event_name, event_data: dict = {}):
 		await connection.send(format_outgoing_event(event_name, event_data))
