@@ -28,7 +28,7 @@ for ids in cluster_schema:
 
 print("Launching...")
 
-main_lana.cluster.launch(config.token, cluster_total, *(None, False, db))
+main_lana.cluster.launch(config.token, cluster_total, *(None, False, startup_lock, db))
 
 print("Launched threads.\nLaunching main bot on shard 0.")
 
