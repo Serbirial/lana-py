@@ -32,8 +32,7 @@ class IPCClient:
 	async def connection_handler(self, connection):
 		await self.auth_handshake(connection)
 		while connection.closed != True:
-			event, data = await self.recv(connection)
-			pass # client shouldnt really care about receiving after the auth
+			asyncio.Future()
 
 	async def start(self):
 		await self.connection_handler(self.connection)
@@ -45,7 +44,6 @@ class IPCClient:
 		try:
 			async with websockets.connect(self.make_uri()) as connection:
 				self.connection = connection 
-				await self.connection_handler(connection)
 		except websockets.exceptions.ConnectionClosedError or websockets.exceptions.ConnectionClosedOK:
 			print("CRITICAL: IPC CLIENT CONNECTION WAS CLOSED OR LOST")
 
