@@ -35,7 +35,7 @@ class IPCServer:
 	async def auth_handshake(self, connection): # FIXME actual auth
 		await self.send(connection, "identify")
 
-		event, data = self.recv(connection)
+		event, data = await self.recv(connection)
 
 		if event != "identify" or "ref" not in data:
 			print("Client didnt identify in first response.")
@@ -64,7 +64,7 @@ class IPCServer:
 		""" Receive incoming events """
 		while connection.closed != True:
 			try:
-				event, data = self.recv(connection)
+				event, data = await self.recv(connection)
 				if not self.check_if_valid_event(event):
 					await self.send(connection, "error", {"error": "bad event name"})
 
@@ -82,8 +82,7 @@ class IPCServer:
 			print("-----    Starting IPC Server    -----.\n")
 			async with websockets.serve(self.handler, self.ip, self.port, compression=None, ping_interval=30, max_size=262144): # Disable compression at cost of network bandwidth
 				print("\n-----    Started IPC Server    -----.\n")
-				#await asyncio.Future()  # run forever
-				# not needed when bot is causing the same thing (this should be ran WITHIN the main bot instance not on its own)
+				await asyncio.Future()  # run forever
 		except:
 			self.cleanup_before_exit()
 
