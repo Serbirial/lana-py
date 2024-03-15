@@ -36,6 +36,6 @@ main_lana.shard_count = cluster_total
 main_lana.shard_ids = [0]
 
 # Lock the startup lock, and release it in the main instance when the instance is fully ready.
-startup_lock.acquire(True)
+startup_lock.acquire(False)
 
 main_lana.run(config.token)
