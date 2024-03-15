@@ -30,19 +30,19 @@ class IPCClient:
 			if event != "done":
 				print("CRITICAL: Something went wrong during IPC Client auth.")
 
-	async def connection_handler(self, connection):
-		await self.auth_handshake(connection)
-		while connection.closed != True:
-			event, data = await self.recv(connection)
-			pass
-
-	async def start(self):
+	async def connection_handler(self):
 		try:
 			async with websockets.connect(self.make_uri()) as connection:
 				self.connection = connection 
-				await self.connection_handler(self.connection)
+				await self.auth_handshake(connection)
+				while connection.closed != True:
+					event, data = await self.recv(connection)
+					pass
 		except websockets.exceptions.ConnectionClosedError or websockets.exceptions.ConnectionClosedOK:
 			print("CRITICAL: IPC CLIENT CONNECTION WAS CLOSED OR LOST")
+
+	async def start(self):
+		self.connection_handler()
 
 	def make_uri(self) -> str:
 		return f"ws://{self.host}:{self.port}"
