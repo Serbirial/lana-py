@@ -115,11 +115,6 @@ class LanaAR(AutoShardedClient):
 		self._at_limit:       list  = []
 		self._at_panic_limit: list  = []
 
-		if not self._is_main_instance:
-			while not self.__sub_has_gotten_lock:
-				self.__lock.acquire()
-				self.__sub_has_gotten_lock = True
-
 		print("Done __INIT__, waiting for ON_READY")
 
 	async def process_parent_queue(self):
@@ -241,6 +236,10 @@ class LanaAR(AutoShardedClient):
 
 	async def on_ready(self):
 		'''Bot startup, sets uptime.'''
+		if not self._is_main_instance:
+			while not self.__sub_has_gotten_lock:
+				self.__lock.acquire()
+				self.__sub_has_gotten_lock = True
 		await self.wait_until_ready()
 		
 		if self.internal_name == None:
