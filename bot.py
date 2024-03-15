@@ -215,7 +215,7 @@ class LanaAR(AutoShardedClient):
 	async def download_avatar_data(self):
 		self.__print("Downloading avatar data...")
 		self.avatar_data = await self.user.display_avatar.read()
-		self.__print("Downloaded.")
+		self.__print("Downloaded avatar data.")
 
 	def dispatch(self, event: str, *args: tuple) -> None:
 		if event == "ready":
@@ -243,7 +243,7 @@ class LanaAR(AutoShardedClient):
 		await self.wait_until_ready()
 		
 		if self.internal_name == None:
-			await self.ipc.notify("SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
+			await self.ipc.notify("[THREAD] SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
 			exit(0)
 
 		if self._is_main_instance:
@@ -283,7 +283,7 @@ class LanaAR(AutoShardedClient):
 			if self._is_main_instance:
 				print("Bot reconnected.")
 			else:
-				await self.ipc.notify("Thread instance reconnected")
+				await self.ipc.notify("[THREAD] Sub instance reconnected")
 
 			return
 		if not hasattr(self, 'uptime'):  # Track Uptime
@@ -309,7 +309,7 @@ class LanaAR(AutoShardedClient):
 			if not len(self.guilds) == 0:
 				await self.ipc.sync()
 			self.__lock.release()
-			await self.ipc.notify("Thread instance started.")
+			await self.ipc.notify("[THREAD] Sub instance started.")
 
 	def on_shutdown(self, *args):
 		self.db.pool.close()

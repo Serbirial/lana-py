@@ -1,5 +1,6 @@
 import asyncio
 import websockets
+import inspect
 from json import loads
 
 def format_event(raw_event_data, delim: str = "\n"): # This code is wacky...
@@ -71,13 +72,16 @@ class IPCServer:
 
 				else:
 					if self.VALID_EVENTS[event] != None:
+						func = self.VALID_EVENTS[event]
 						args = get_args_from_data(data)
 						if event == "db_sync":
 							args = (self.client.db, args)
 						if type(args)==tuple:
-							await self.VALID_EVENTS[event](*args)
+							proc = func(*args)
 						else:
-							await self.VALID_EVENTS[event](args)
+							proc = func(args)
+						if inspect.iscoroutinefunction(func):
+							await proc
 						await self.send(connection, "done")
 
 			except websockets.exceptions.ConnectionClosedError or websockets.exceptions.ConnectionClosedOK:
