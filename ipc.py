@@ -75,8 +75,7 @@ class IPCServer:
 						if event == "db_sync":
 							args = (self.client.db, args)
 
-						print(f"valid event {event} - {data}")
-						await self.VALID_EVENTS[event](*args if len(args)>1 else args)
+						await self.VALID_EVENTS[event](*args if type(args)==tuple else args)
 						await self.send(connection, "done")
 
 			except websockets.exceptions.ConnectionClosedError or websockets.exceptions.ConnectionClosedOK:
