@@ -18,7 +18,7 @@ class IPCClient:
 		await connection.send(format_outgoing_event(event_name, event_data))
 
 	async def recv(self, connection):
-		event, data = await connection.recv(connection)
+		event, data = await connection.recv()
 		return event, data
 
 	async def auth_handshake(self, connection): # FIXME actual auth
