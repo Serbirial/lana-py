@@ -71,6 +71,10 @@ class IPCServer:
 
 				else:
 					if self.VALID_EVENTS[event] != None:
+
+						if event == "db_sync":
+							args = (self.client.db, *args)
+
 						args = get_args_from_data(data)
 						print(f"valid event {event} - {data}")
 						await self.VALID_EVENTS[event](*args)

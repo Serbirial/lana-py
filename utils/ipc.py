@@ -34,8 +34,6 @@ class IPCClient:
 		try:
 			async with websockets.connect(self.make_uri()) as connection:
 				self.connection = connection 
-				print(self)
-				print(self.connection)
 				await self.auth_handshake(connection)
 				while connection.closed != True:
 					event, data = await self.recv(connection)
