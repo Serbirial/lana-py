@@ -110,9 +110,10 @@ class LanaAR(AutoShardedClient):
 
 		# DONT TOUCH
 		self.internal_name          = internal_name
-		self.ipc: IPCServer         = None   
+		self.ipc: IPCServer         = None
 		self._is_main_instance      = is_main_instance
 		self.__lock                 = startup_lock
+		self.__sub_has_gotten_lock  = False
 		self._at_limit:       list  = []
 		self._at_panic_limit: list  = []
 
@@ -235,6 +236,10 @@ class LanaAR(AutoShardedClient):
 
 	async def on_ready(self):
 		'''Bot startup, sets uptime.'''
+		if not self._is_main_instance:
+			while not self.__sub_has_gotten_lock:
+				self.__lock.acquire(True)
+				self.__sub_has_gotten_lock = True
 		await self.wait_until_ready()
 		
 		if self.internal_name == None:
@@ -249,8 +254,8 @@ class LanaAR(AutoShardedClient):
 				# Start the IPC server.
 				self.ipc_task = task.create_task(await self.ipc.start())
 				# Set IPC event functions.
-				await self.ipc.VALID_EVENTS["notice"] = self.__print
-				await self.ipc.VALID_EVENTS["db_sync"] = self.syncer
+				self.ipc.VALID_EVENTS["notice"] = self.__print
+				self.ipc.VALID_EVENTS["db_sync"] = self.syncer
 
 		else:
 			self.error_channel = None
@@ -303,6 +308,7 @@ class LanaAR(AutoShardedClient):
 			if self._is_main_instance and self.__lock != None:
 				self.__lock.release()
 		else:
+			self.__lock.release()
 			await self.ipc.notify("Thread instance started.")
 
 	def on_shutdown(self, *args):
