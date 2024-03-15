@@ -67,10 +67,12 @@ class IPCServer:
 				event, data = await self.recv(connection)
 				if not self.check_if_valid_event(event):
 					await self.send(connection, "error", {"error": "bad event name"})
+					print("bad event name")
 
 				else:
 					if self.VALID_EVENTS[event] != None:
 						args = get_args_from_data(data)
+						print(f"valid event {event} - {data}")
 						await self.VALID_EVENTS[event](*args)
 						await self.send(connection, "done")
 
