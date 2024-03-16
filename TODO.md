@@ -1,6 +1,6 @@
 ## Bot
 Complete ThreadCluster
-^ FIX BUGS WHERE BOT EXPECTS TO ACCESS SPECIFIC CHANNELS
+~~^ FIX BUGS WHERE BOT EXPECTS TO ACCESS SPECIFIC CHANNELS~~ Should be fixed.
 
 Make db connections / pools pools per-shard
 
