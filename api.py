@@ -19,8 +19,7 @@ app.blueprint(api)
 @app.exception(Exception)
 async def catch_everything(request, exception):
 	if not isinstance(exception, NotFound):
-		return empty()
-	return HTTPResponse("URL not found.", 404)
+		return HTTPResponse("URL not found.", 404)
 
 
 def main():
