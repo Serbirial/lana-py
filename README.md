@@ -108,9 +108,9 @@ The main branch of Lana AR will be considered a rolling release until an officia
 After the first stable release; the main branch will go back to being a mostly-stable release of the bot, and a dev branch will be made in its place.\
 We say Lana is 90% open source because we keep certain features entirely private code-wise to prevent both code theft and attackers from knowing very intricately how the bot's internals works.
 ### This includes: 
-*	Any/All Auto-Mod/Events: antispam, welcoming, logging, anything of the sorts. (Will slowly trickle viable features in)\
-*	The antilock code to entirely prevent raids/spam from disrupting/DDoSing the bot (relatively simple should you want to i\mplement it yourself and are intermediate at python, just go from what you see left in the bot)
-*	Any/All code that enables or adds payment processing/monitization to the bot.\
+*	Any/All Auto-Mod/Events: antispam, welcoming, logging, anything of the sorts. (Will slowly trickle viable features in)
+*	The antilock code to entirely prevent raids/spam from disrupting/DDoSing the bot (relatively simple should you want to implement it yourself and are intermediate at python, just go from what you see left in the bot)
+*	Any/All code that enables or adds payment processing/monitization to the bot.
 
 I will provide limited support with how to implement some of these features yourself.
 
