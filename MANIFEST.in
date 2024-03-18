@@ -1,0 +1,21 @@
+include pyproject.toml
+include *.md
+include tox.ini
+include versioneer.py
+include src/lana/_version.py
+include src/lana/web/static/*
+include src/lana/web/html/*
+
+exclude *.example
+recursive-include dist *.gz
+recursive-include dist *.whl
+recursive-include src *.pyc
+recursive-include tests *.py
+recursive-include src *.js
+
+
+exclude *.pyo
+exclude __pycache__
+exclude .gitignore
+exclude LICENSE
+

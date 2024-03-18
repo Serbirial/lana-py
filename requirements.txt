@@ -1,7 +1,0 @@
-discord.py==2.3.2
-psutil
-git+https://github.com/Rapptz/discord-ext-menus
-unidecode
-mariadb
-sanic[ext]	
-redis
