@@ -12,11 +12,6 @@ from dis_command.discommand.ext import cogs, commands
 from lana.utils import permissions
 
 logger = logging.getLogger(__name__)
-# ??
-try:
-    from lana.config.config import owners
-except ImportError:
-    logger.warning("No owners found in config, code in lana.cogs.eval will not work as intended.")
 
 
 def cleanup_code(content):
@@ -38,7 +33,7 @@ class EvalCommand(cogs.Cog):
     @commands.command(name="eval")
     async def eval(self, bot, ctx, code: str):
         """Evaluates a code"""
-        if ctx.author.id not in owners or not permissions.is_owner(ctx):
+        if ctx.author.id not in bot.config.owners or not permissions.is_owner(ctx):
             return await ctx.send("This command is owner only.")
 
         env = {

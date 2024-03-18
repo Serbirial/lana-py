@@ -1,25 +1,22 @@
-# Discord #
+# Intrinsic #
 import asyncio
 import datetime
+import json
 from multiprocessing.synchronize import Lock
 
+# External #
 import discord
-
-# Non-discord #
 import psutil
-from config import config
 from dis_command.discommand.ext import converter, task
 from dis_command.discommand.ext.cog_manager import CogManager
 from dis_command.discommand.ext.event_manager import EventManager
 from discord import AutoShardedClient
-from ipc import IPCServer
-from utils import db, embed, ipc, redis
 
-# Config #
+from lana.config import BotConfig, MariaDBConfig
 
-
-# Utils #
-
+# Internal #
+from lana.ipc import IPCServer
+from lana.utils import db, embed, ipc, redis
 
 # PRIVATE ANTILOCK #
 try:
@@ -61,7 +58,15 @@ async def sync_db(db_obj, guilds):
 
 
 class LanaAR(AutoShardedClient):
-    def __init__(self, internal_name: str = None, is_main_instance: bool = False, startup_lock: Lock = None, database: db.DB = None):
+    def __init__(
+        self,
+        internal_name: str = None,
+        is_main_instance: bool = False,
+        startup_lock: Lock = None,
+        database: db.DB = None,
+        db_config: MariaDBConfig = None,
+        config: BotConfig = None,
+    ):
         super().__init__(case_insensitive=True, max_messages=10000, fetch_offline_members=True, assume_unsync_clock=True, intents=intent)
 
         self.syncer = sync_db
@@ -76,8 +81,8 @@ class LanaAR(AutoShardedClient):
         self.redis: redis.Redis = redis.RDB
         self.db: db.DB = database
         if self.db == None:
-            self.db = db.DB(db.mariadb_pool(999))
-        self.config: config.BotConfig = config.BotConfig()
+            self.db = db.DB(db.mariadb_pool(999, db_config))
+        self.config = config
 
         # Data filled in on_ready
         self.first_run: bool = False
@@ -315,7 +320,7 @@ class LanaAR(AutoShardedClient):
 if __name__ == "__main__":
     lana = LanaAR()
     try:
-        lana.panel = db.DB(db.mariadb_pool(1, "private/config/private_db.json"))
+        lana.panel = db.DB(db.mariadb_pool(1, json.load(open("private/config/private_db.json"))))
     except FileNotFoundError:
         pass
     lana.run(lana.config.token)

@@ -45,5 +45,5 @@ setuptools.setup(
         # 'test': ['coverage'],
     },
     author="Serbirial",
-    url="https://github.com/Serbirial/lana-py/tree/main",
+    url="https://github.com/Serbirial/lana-py",
 )

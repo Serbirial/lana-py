@@ -1,17 +1,15 @@
 from __future__ import annotations
 
-import discord
-import aiohttp
 import inspect
-
-#from discord.ext import commands
-from dis_command.discommand.ext import (
-    commands,
-    context
-)
-
+from typing import Iterable, Optional
 from urllib.parse import urlparse
-from typing import Any, Iterable, Optional
+
+import aiohttp
+import discord
+
+# from discord.ext import commands
+from dis_command.discommand.ext import commands, context
+
 
 class ConfirmationView(discord.ui.View):
     def __init__(self, *, timeout: float, author_id: int, ctx: Context, delete_after: bool) -> None:
@@ -26,7 +24,7 @@ class ConfirmationView(discord.ui.View):
         if interaction.user and interaction.user.id == self.author_id:
             return True
         else:
-            await interaction.response.send_message('This confirmation dialog is not for you.', ephemeral=True)
+            await interaction.response.send_message("This confirmation dialog is not for you.", ephemeral=True)
             return False
 
     async def on_timeout(self) -> None:
@@ -38,8 +36,8 @@ class ConfirmationView(discord.ui.View):
     async def clear_before_stop(self) -> None:
         await self.message.edit(view=None)
 
-    @discord.ui.button(label='Confirm', style=discord.ButtonStyle.green)
-    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button	):
+    @discord.ui.button(label="Confirm", style=discord.ButtonStyle.green)
+    async def confirm(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = True
         await interaction.response.defer()
         if self.delete_after:
@@ -48,7 +46,7 @@ class ConfirmationView(discord.ui.View):
             await self.clear_before_stop()
         self.stop()
 
-    @discord.ui.button(label='Cancel', style=discord.ButtonStyle.red)
+    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
     async def cancel(self, interaction: discord.Interaction, button: discord.ui.Button):
         self.value = False
         await interaction.response.defer()
@@ -60,7 +58,7 @@ class ConfirmationView(discord.ui.View):
 
 
 class Context(context.Context):
-    '''Custom Context class to provide utility.'''
+    """Custom Context class to provide utility."""
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -70,28 +68,22 @@ class Context(context.Context):
 
     async def entry_to_code(self, entries: Iterable[tuple[str, str]]) -> None:
         width = max(len(a) for a, b in entries)
-        output = ['```']
+        output = ["```"]
         for name, entry in entries:
-            output.append(f'{name:<{width}}: {entry}')
-        output.append('```')
-        await self.send('\n'.join(output))
+            output.append(f"{name:<{width}}: {entry}")
+        output.append("```")
+        await self.send("\n".join(output))
 
     async def indented_entry_to_code(self, entries: Iterable[tuple[str, str]]) -> None:
         width = max(len(a) for a, b in entries)
-        output = ['```']
+        output = ["```"]
         for name, entry in entries:
-            output.append(f'\u200b{name:>{width}}: {entry}')
-        output.append('```')
-        await self.send('\n'.join(output))
+            output.append(f"\u200b{name:>{width}}: {entry}")
+        output.append("```")
+        await self.send("\n".join(output))
 
     async def prompt(
-        self,
-        message: str,
-        *,
-        timeout: float = 30.0,
-        delete_after: bool = True,
-        author_id: Optional[int] = None,
-        embed: bool = False
+        self, message: str, *, timeout: float = 30.0, delete_after: bool = True, author_id: Optional[int] = None, embed: bool = False
     ) -> Optional[bool]:
         """An interactive reaction confirmation dialog.
         Parameters
@@ -136,9 +128,9 @@ class Context(context.Context):
         embed = discord.Embed(title=f"{command.name}", description=command.description)
         params = inspect.signature(command.callback).parameters
         for name, arg in params.items():
-            if name in ['self', 'bot', 'ctx']:
+            if name in ["self", "bot", "ctx"]:
                 continue
-            
+
             if arg.default == inspect._empty:
                 embed.add_field(name=name, value="This argument is **Required**")
             else:
@@ -149,11 +141,11 @@ class Context(context.Context):
         return await self.send(embed=embed)
 
     def delete(self):
-        '''shortcut'''
+        """shortcut"""
         return self.message.delete()
 
     async def get_ban(self, name_or_id):
-        '''Helper function to retrieve a banned user'''
+        """Helper function to retrieve a banned user"""
         for ban in await self.guild.bans():
             if name_or_id.isdigit():
                 if ban.user.id == int(name_or_id):
@@ -162,18 +154,18 @@ class Context(context.Context):
                 return ban
 
     async def purge(self, *args, **kwargs):
-        '''Shortcut to channel.purge'''
-        kwargs.setdefault('bulk', True)
+        """Shortcut to channel.purge"""
+        kwargs.setdefault("bulk", True)
         await self.channel.purge(*args, **kwargs)
 
     async def _get_message(self, channel, id):
-        '''Goes through channel history to get a message'''
+        """Goes through channel history to get a message"""
         async for message in channel.history(limit=2000):
             if message.id == id:
                 return message
 
     async def get_message(self, channel_or_id, id=None):
-        '''Helper tool to get a message, limits at 2000 messages. '''
+        """Helper tool to get a message, limits at 2000 messages."""
         if isinstance(channel_or_id, int):
             msg = await self._get_message(channel=self.channel, id=channel_or_id)
         else:
@@ -182,8 +174,8 @@ class Context(context.Context):
 
     @staticmethod
     def is_valid_image_url(url):
-        '''Checks if a url leads to an image.'''
-        types = ['.png', '.jpg', '.gif', '.bmp', '.webp']
+        """Checks if a url leads to an image."""
+        types = [".png", ".jpg", ".gif", ".bmp", ".webp"]
         parsed = urlparse(url)
         if any(parsed.path.endswith(i) for i in types):
-            return url.replace(parsed.query, 'size=128')
+            return url.replace(parsed.query, "size=128")

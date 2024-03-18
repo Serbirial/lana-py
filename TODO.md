@@ -10,3 +10,7 @@ Add finished API endpoints to bot
 
 ## Api
 To be done
+
+# Add owner attribute to bot
+# pass config to maria pool db
+

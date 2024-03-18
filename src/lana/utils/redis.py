@@ -1,9 +1,11 @@
 import redis
 
-RDB = redis.Redis(
-    host='127.0.0.1',
-    port=6379,
-    decode_responses=True)
+# This is an odd way to instantiate a redis connection, it works, but it happens on instantiation of the module, and you can't
+# configure it without changing the code. It also might not be wise to use the same connection for all the different things you
+# might want to do with redis.
+
+RDB = redis.Redis(host="127.0.0.1", port=6379, decode_responses=True)
+
 
 def get_guild_events(guild: int) -> int:
     """Gets the event count for a guild (How many events have happened since last cleared).
@@ -13,8 +15,9 @@ def get_guild_events(guild: int) -> int:
 
     Returns:
         int: The number of events that have happend.
-    """    
+    """
     return RDB.get(f"lana:events:{guild}") or 0
+
 
 def add_guild_event(guild: int) -> int:
     """Adds event to guild counter.
@@ -24,7 +27,7 @@ def add_guild_event(guild: int) -> int:
 
     Returns:
         int: The new count of events.
-    """    
+    """
     key = f"lana:events:{guild}"
     current = RDB.get(key)
     if current == None:
@@ -43,8 +46,9 @@ def get_guild_message(guild: int) -> int:
 
     Returns:
         int: The number of events that have happend.
-    """    
+    """
     return RDB.get(f"lana:antilock:{guild}") or 0
+
 
 def add_guild_message(guild: int) -> int:
     """Adds message to guild counter.
@@ -54,7 +58,7 @@ def add_guild_message(guild: int) -> int:
 
     Returns:
         int: The new count of events.
-    """    
+    """
     key = f"lana:antilock:{guild}"
     current = RDB.get(key)
     if current == None:
@@ -82,6 +86,7 @@ def add_moderator_action(member: int) -> int:
     current = int(current) + 1
     RDB.set(key, current, keepttl=False)
     return current
+
 
 def get_moderator_action(member: int) -> int:
     """Gets a moderators current actions.

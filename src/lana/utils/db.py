@@ -1,16 +1,15 @@
 from __future__ import annotations
 
-import json
 import re
 
 import mariadb
 
-from config.config import DBConfig
+from lana.config import MariaDBConfig
 
-DB_CONFIG_PATH = "config/db.json"  # TODO: replace db.json with a more general config.json format
+# from config.config import DBConfig
 
 
-def mariadb_pool(pool_id: int, config_path: str = None) -> mariadb.ConnectionPool:
+def mariadb_pool(pool_id: int, config: MariaDBConfig) -> mariadb.ConnectionPool:
     """Creates a mariadb connection pool from a config file.
 
     Args:
@@ -20,18 +19,6 @@ def mariadb_pool(pool_id: int, config_path: str = None) -> mariadb.ConnectionPoo
         mariadb.ConnectionPool: The connection pool.
     """
 
-    f = json.load(open(DB_CONFIG_PATH if config_path == None else config_path))
-    config = DBConfig(user=f["user"], password=f["password"], database=f["database"])
-
-    # Set optional config values
-    def set_opt(key: str, t: type):
-        if key in f and type(f[key]) is t:
-            config[key] = f[key]
-
-    set_opt("host", str)
-    set_opt("port", int)
-    set_opt("pool_size", int)
-
     return mariadb.ConnectionPool(
         host=config.host,
         port=config.port,
@@ -39,7 +26,7 @@ def mariadb_pool(pool_id: int, config_path: str = None) -> mariadb.ConnectionPoo
         user=config.user,
         password=config.password,
         pool_size=config.pool_size,
-        pool_name=f"pool_{config.database}{pool_id}",
+        pool_name=f"pool_{config.get('database', 'lanadefault')}_{pool_id}",
     )
 
 

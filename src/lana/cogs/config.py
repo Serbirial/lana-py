@@ -1,8 +1,7 @@
 import discord
-from config.config import prefix_limit
 from dis_command.discommand.ext import cogs, commands
 
-from lana.utils import api, checks, permissions
+from lana.utils import api, permissions
 from lana.utils.embed import Embed
 
 
@@ -20,11 +19,11 @@ class Config(cogs.Cog):
     @prefix.command("add", name="add")
     async def prefixadd(self, bot, ctx, prefix: str):
         """Add a new prefix."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
         actions = {
             "clash": ctx.send("Given prefix clashes with already existing prefix."),
-            "limit": ctx.send(f"This guild is at the prefix limit ({prefix_limit})"),
+            "limit": ctx.send(f"This guild is at the prefix limit ({bot.config.prefix_limit})"),
             True: ctx.send(f"Prefix `{prefix.strip()}` has been added"),
         }
 
@@ -36,7 +35,7 @@ class Config(cogs.Cog):
     @prefix.command("remove", name="remove")
     async def prefixremove(self, bot, ctx, prefix: str):
         """Remove a custom prefix."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
         connection = (
@@ -60,7 +59,7 @@ class Config(cogs.Cog):
     @modlist.command("add", name="add")
     async def modadd(self, bot, ctx, member: discord.Member):
         """Add a new mod."""
-        await permissions.check_permissions(ctx, manage_server=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_server=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
         member = await bot.converter.member(ctx, member)
 
@@ -78,7 +77,7 @@ class Config(cogs.Cog):
     @modlist.command("remove", name="remove")
     async def modremove(self, bot, ctx, member: discord.Member):
         """Remove a mod from the list."""
-        await permissions.check_permissions(ctx, manage_server=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_server=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
         member = await bot.converter.member(ctx, member)
 
@@ -94,7 +93,7 @@ class Config(cogs.Cog):
     @modlist.command("get", name="list")
     async def listmods(self, bot, ctx):
         """Lists the current known moderators in the list."""
-        await permissions.check_permissions(ctx, manage_server=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_server=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
         connection = (
@@ -117,7 +116,7 @@ class Config(cogs.Cog):
     @adminlist.command("add", name="add")
     async def adminadd(self, bot, ctx, member: discord.Member):
         """Add a new admin."""
-        await permissions.check_permissions(ctx, manage_server=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_server=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
         member = await bot.converter.member(ctx, member)
 
@@ -135,7 +134,7 @@ class Config(cogs.Cog):
     @adminlist.command("remove", name="remove")
     async def adminremove(self, bot, ctx, member: discord.Member):
         """Remove an admin from the list."""
-        await permissions.check_permissions(ctx, manage_server=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_server=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
         member = await bot.converter.member(ctx, member)
 
@@ -151,7 +150,7 @@ class Config(cogs.Cog):
     @adminlist.command("get", name="list")
     async def listadmins(self, bot, ctx):
         """Lists the current known admins in the list."""
-        await permissions.check_permissions(ctx, manage_server=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_server=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
         connection = (
@@ -174,7 +173,7 @@ class Config(cogs.Cog):
     @panic.command("toggle", name="toggle")
     async def panictoggle(self, bot, ctx):
         """Toggle panic on/off."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
         actions = {
@@ -194,7 +193,7 @@ class Config(cogs.Cog):
     @panic.command("message_limit", name="mlimit")
     async def panicmessage(self, bot, ctx, limit: int = None):
         """Change the message limit per 5 seconds until the bot panics and starts muting people."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         limit = await bot.converter.integer(limit) or None
         if limit == None:
             current = bot.db.query_row("SELECT message_limit FROM panic WHERE guild = ?", ctx.guild.id)
@@ -224,7 +223,7 @@ class Config(cogs.Cog):
     @log.command("toggle", name="toggle")
     async def logtoggle(self, bot, ctx):
         """Toggle logging on/off."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
         actions = {
@@ -244,7 +243,7 @@ class Config(cogs.Cog):
     @log.command("channel", name="channel")
     async def logchannel(self, bot, ctx, channel: discord.abc.GuildChannel):
         """Change the channel logs go to."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         channel = await bot.converter.channel(ctx, channel)
         if channel.permissions_for(ctx.guild.me).manage_webhooks == False:
             return await ctx.send("I do not have permissions to manage webhooks in that channel.")
@@ -274,7 +273,7 @@ class Config(cogs.Cog):
     @welcome.command("toggle", name="toggle")
     async def welcometoggle(self, bot, ctx):
         """Toggle auto-welcome on/off."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
         actions = {
@@ -294,7 +293,7 @@ class Config(cogs.Cog):
     @welcome.command("embed", name="embed")
     async def welcomeembed(self, bot, ctx):
         """Toggle if the join message is an embed or not."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
         actions = {
@@ -314,7 +313,7 @@ class Config(cogs.Cog):
     @welcome.command("channel", name="channel")
     async def welcomechannel(self, bot, ctx, channel: discord.abc.GuildChannel):
         """Change the channel join messages go to."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         channel = await bot.converter.channel(ctx, channel)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
@@ -334,7 +333,7 @@ class Config(cogs.Cog):
     @welcome.command("message", name="message")
     async def welcomemessage(self, bot, ctx, message: str = None):
         """Change the content of the join message."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         if not message:  # Go back to the default message
             message = "Welcome {{user}}!"
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
@@ -360,7 +359,7 @@ class Config(cogs.Cog):
     @antialt.command("toggle", name="toggle")
     async def antialttoggle(self, bot, ctx):
         """Toggle anti-alt on/off."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
         actions = {
@@ -380,7 +379,7 @@ class Config(cogs.Cog):
     @antialt.command("days", name="days")
     async def antialtdays(self, bot, ctx, time_in_days: int):
         """Change the account age (in days) it takes to trigger the anti-alt."""
-        await permissions.check_permissions(ctx, manage_roles=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_roles=True)
         days = await bot.converter.integer(time_in_days)
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
@@ -402,7 +401,7 @@ class Config(cogs.Cog):
     @modonlyactions.command("toggle", name="toggle")
     async def modonlyactionstoggle(self, bot, ctx):
         """Toggle strict moderation actions on/off. (mod/admin commands must be done by users in the modlist or adminlist)"""
-        await permissions.check_permissions(ctx, manage_server=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_server=True)
         if ctx.author.id != ctx.guild.owner.id:
             return await ctx.send("This command can only be ran by the Guilds OWNER.")
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
@@ -424,7 +423,7 @@ class Config(cogs.Cog):
     @modonlyactions.command("premium", name="premium")
     async def modonlyactionspremium(self, bot, ctx):
         """Toggle premium strict moderation actions on/off. (mod/admin actions must be done by users in the modlist or adminlist, through the entire server, or they will be stripped of their roles/perms)"""
-        await permissions.check_permissions(ctx, manage_server=True)
+        await permissions.check_permissions(ctx, bot.config.owners, manage_server=True)
         if ctx.author.id != ctx.guild.owner.id:
             return await ctx.send("This command can only be ran by the Guilds OWNER.")
         URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"

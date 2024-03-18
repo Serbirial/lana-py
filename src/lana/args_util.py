@@ -52,8 +52,8 @@ class Args:
     db_pool_size = os.getenv("DB_POOL_SIZE", 20)
     token = os.getenv("DISCORD_TOKEN", None)
     api_url = os.getenv("API_URL", "http://localhost:4004/api")
-    log_level = logging.INFO
-    console_log = True
+    log_level = os.getenv("LOGGING_LEVEL", logging.INFO)
+    console_log = os.getenv("STREAM_LOGS", True)
 
 
 def parse_args() -> Args:
@@ -65,6 +65,18 @@ def parse_args() -> Args:
         Args object containing all the
     """
     arg_parser = ArgumentParser()
+    arg_parser.add_argument("-o", "--owners", required=True, help="Comma separated list of bot owners")
+    arg_parser.add_argument("-pl", "--prefix-limit", default=25, help="The prefix limit of the bot")
+    arg_parser.add_argument("-ec", "--error-channel", help="The channel to log errors to")
+    arg_parser.add_argument("-oc", "--output-channel", help="The channel to log output to")
+    arg_parser.add_argument("-dh", "--db-host", default="localhost", help="The host of the database")
+    arg_parser.add_argument("-dp", "--db-port", default=3306, help="The port of the database")
+    arg_parser.add_argument("-du", "--db-user", help="The user of the database")
+    arg_parser.add_argument("-dpw", "--db-password", help="The password of the database")
+    arg_parser.add_argument("-ddb", "--db-database", help="The database to connect to")
+    arg_parser.add_argument("-dps", "--db-pool-size", default=20, help="The pool size of the database")
+    arg_parser.add_argument("-t", "--token", required=True, help="The bot token")
+    arg_parser.add_argument("-au", "--api-url", default="http://localhost:4004/api", help="The API url to connect to")
     arg_parser.add_argument(
         "-ll",
         "--log-level",

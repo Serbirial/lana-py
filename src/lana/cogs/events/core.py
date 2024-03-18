@@ -1,11 +1,10 @@
 import traceback
 
-import context
 import discord
 from dis_command.discommand.ext import cogs, events
 from dis_command.discommand.ext.events import process_message
-from utils import db
 
+import lana.context as context
 from lana.exceptions import (
     ArgConvertError,
     CantReachAPI,
