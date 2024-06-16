@@ -12,6 +12,13 @@ CREATE TABLE IF NOT EXISTS guilds (
   PRIMARY KEY (id)
 );
 
+CREATE TABLE IF NOT EXISTS autoactionchannel (
+  id bigint unsigned NOT NULL,
+  -- The channel the bot will report automatic actions to (mutes from antialt, antinuke coming into effect, etc)
+
+  PRIMARY KEY (id)
+);
+
 CREATE TABLE IF NOT EXISTS strict_mod_actions (
   guild bigint unsigned NOT NULL,
   enabled boolean NOT NULL DEFAULT 0,
@@ -58,6 +65,7 @@ CREATE TABLE IF NOT EXISTS antinuke (
 CREATE TABLE IF NOT EXISTS panic (
   guild bigint unsigned NOT NULL,
   message_limit bigint unsigned NOT NULL DEFAULT 200,
+  max_actions smallint unsigned NOT NULL DEFAULT 120,
   enabled boolean NOT NULL DEFAULT 0,
 
   PRIMARY KEY (guild),

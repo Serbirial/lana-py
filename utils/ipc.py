@@ -57,3 +57,8 @@ class IPCClient:
 		while self.connection == None:
 			await asyncio.sleep(0.3)
 		await self.send(self.connection, "db_sync", {"args": [x.id for x in self.client.guilds]})
+
+	async def error(self):
+		while self.connection == None:
+			await asyncio.sleep(0.3)
+		await self.send(self.connection, "error", {"args": [x.id for x in self.client.guilds]})

@@ -19,7 +19,7 @@ cluster_schema = [
 	[1,2], # Thread 1 handles shards 0-1 
 	[3,4]  # Thread 2 handles shards 2-3
 ]
-cluster_total = 5
+cluster_total = 5 # 5 Shards, 0- main instance controlling the threads, 1-2 is thread 1, 3-4 is thread 2
 
 print("Creating threads...")
 

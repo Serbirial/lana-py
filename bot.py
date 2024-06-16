@@ -117,37 +117,6 @@ class LanaAR(AutoShardedClient):
 
 		print("Done __INIT__, waiting for ON_READY")
 
-	async def process_parent_queue(self):
-		"""Processes the Queue full of information from sub instances.
-		"""		
-		queue_schema = {
-			"error": self.error_channel.send,
-		}
-		while True:
-			q_event, q_data = self._parent_instance_queue.get()
-			if q_event == "db_sync":
-				print("DB Sync requested by sub-instance.")
-				await self.syncer(self.db, q_data)
-				print("DB Sync finished.")
-			elif q_event == "notice":
-				print(q_data)
-			elif q_event == "shutdown":
-				await self.logout()
-
-			elif q_event in queue_schema:
-				await queue_schema[q_event](q_data)
-
-	async def process_sub_queue(self):
-		"""Processes the Queue full of information from parent instances
-		"""		
-		while True:
-			q_event, q_data = self._sub_instance_queue.get()
-			if q_event == "execute":
-				func = getattr(self, q_data[0])
-				func(q_data[1]) # FIXME wont run async functions
-			elif q_event == "sync":
-				self._parent_instance_queue.put(("db_sync", [x.id for x in self.guilds]))
-
 
 	def __print(self, to_print):
 		"""Lazy way to suppress non-main prints.
