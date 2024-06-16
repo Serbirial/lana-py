@@ -3,6 +3,13 @@ import websockets
 import inspect
 from json import loads
 
+import websockets.connection
+
+VALID_THINGS = {
+	"guilds",
+	"internal_name"
+}
+
 def format_event(raw_event_data, delim: str = "\n"): # This code is wacky...
 	event_name, event_data = raw_event_data.split(delim)
 	return event_name, loads(event_data.replace("\'", "\""))
@@ -26,14 +33,34 @@ class IPCServer:
 			"identify": None,
 			"db_sync": None,
 			"notify": None,
-			"broadcast": self.broadcast
+			"broadcast": self.broadcast,
+			"get": self.get_thing
 
 		}
+
+	def get_thing(self, thing):
+		if thing not in VALID_THINGS:
+			raise AttributeError("Client does not have access to that")
+		else:
+			try:
+				return getattr(self.client, thing)
+			except AttributeError:
+				raise AttributeError("Client has no such attribute")
 
 	def check_if_valid_event(self, event):
 		return event in self.VALID_EVENTS
 
 	async def auth_handshake(self, connection): # FIXME actual auth
+		"""The authentication handshake process to verify the connection is actually from another (verified) bot instance.
+
+		Args:
+			connection (websocket_connection): The websocket connection.
+
+		Returns:
+			str: The verified connections reference.
+		
+		Closes automatically if not able to verify.
+		"""		
 		await self.send(connection, "identify")
 
 		event, data = await self.recv(connection)
@@ -49,19 +76,43 @@ class IPCServer:
 			return data["ref"]
 
 	async def send(self, connection, event_name, event_data: dict = {}):
+		"""Send a message through the IPC
+
+		Args:
+			connection (websocket_connection): The websocket connection.
+			event_name (str): The event name.
+			event_data (dict, optional): The event data. Defaults to {}.
+		"""		
 		await connection.send(format_outgoing_event(event_name, event_data))
 
 	async def recv(self, connection):
+		"""Receive data through the IPC
+
+		Args:
+			connection (websocket_connection): The websocket connection.
+
+		Returns:
+			tuple: Tuple/Json data.
+		"""		
 		data = await connection.recv()
 		return format_event(data)
 
 	async def broadcast(self, data) -> None:
-		""" Send event to all connections"""
+		""" Send event to all connections
+		
+		Args:
+			data: Data to be broadcasted"""
 		#conns = [x for x in self.connections.values() if x != [self.connections[reference]]]
 		websockets.broadcast([x for x in self.connections.values()], data)
 		return True
 
 	async def connection_handler(self, connection, reference):
+		"""WS Connection handler for IPC.
+
+		Args:
+			connection (ws_connection): The connection object that can be manipulated and used.
+			reference (str): The connections reference (name/id)
+		"""		
 		""" Receive incoming events """
 		while connection.closed != True:
 			try:
@@ -82,19 +133,23 @@ class IPCServer:
 							proc = func(args)
 						if inspect.iscoroutinefunction(func):
 							await proc
+						if type(proc) in [str, int, float]:
+							await self.send(connection, "data", {"data": str(proc)})
 						await self.send(connection, "done")
 
 			except websockets.exceptions.ConnectionClosedError or websockets.exceptions.ConnectionClosedOK:
 				pass
 
 	async def start(self):
+		"""Starts the IPC server.
+		"""		
 		try:
 			print("-----    Starting IPC Server    -----.\n")
 			async with websockets.serve(self.handler, self.ip, self.port, compression=None, ping_interval=30, max_size=262144): # Disable compression at cost of network bandwidth
 				print("\n-----    Started IPC Server    -----.\n")
 				await asyncio.Future()  # run forever
 		except:
-			self.cleanup_before_exit()
+			await self.cleanup_before_exit()
 
 	async def handler(self, connection):
 		""" Handles a single connection. """
@@ -114,7 +169,11 @@ class IPCServer:
 		print(f">>> Closed connection ({reference})\n")
 		return
 
-	def cleanup_before_exit(self):
+	async def cleanup_before_exit(self):
+		"""Cleans up before exiting.
+		"""	
+		for connection in self.connections:
+			await connection.wait_closed()
 		print("\n----    Exiting IPC server.    -----\n")
 		print("Done.")
 
