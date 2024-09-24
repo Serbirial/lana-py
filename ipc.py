@@ -31,7 +31,7 @@ class IPCServer:
 		self.connections = {} # reference : connection
 		self.VALID_EVENTS = {
 			"identify": None,
-			"db_sync": None,
+			"guild_sync": self.sync_guilds,
 			"notify": None,
 			"broadcast": self.broadcast,
 			"get": self.get_thing
@@ -46,6 +46,11 @@ class IPCServer:
 				return getattr(self.client, thing)
 			except AttributeError:
 				raise AttributeError("Client has no such attribute")
+			
+	async def sync_guilds(self, guilds):
+		for guild_id in guilds:
+			if guild_id not in self.client._total_guilds:
+				self.client._total_guilds.append(guild_id)
 
 	def check_if_valid_event(self, event):
 		return event in self.VALID_EVENTS
@@ -113,7 +118,6 @@ class IPCServer:
 			connection (ws_connection): The connection object that can be manipulated and used.
 			reference (str): The connections reference (name/id)
 		"""		
-		""" Receive incoming events """
 		while connection.closed != True:
 			try:
 				event, data = await self.recv(connection)
@@ -125,7 +129,7 @@ class IPCServer:
 					if self.VALID_EVENTS[event] != None:
 						func = self.VALID_EVENTS[event]
 						args = get_args_from_data(data)
-						if event == "db_sync":
+						if event == "guild_sync":
 							args = (self.client.db, args)
 						if type(args)==tuple:
 							proc = func(*args)

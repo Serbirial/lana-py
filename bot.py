@@ -52,6 +52,8 @@ intent = discord.Intents.all()
 DEFAULT_PREFIX = "lana."
 
 # FIXME: make shard compatible
+# NOTE: basically done
+
 # TODO:
 #		Make all non-main instances put information into main instance with queues (all guilds, users, any global stats needed)
 
@@ -106,14 +108,16 @@ class LanaAR(AutoShardedClient):
 		self.loaded_cogs: bool  = False
 		self.avatar_data: bytes = None
 
-		# DONT TOUCH
+		# DONT TOUCH - WILL DEFINITELY BREAK BOT #
 		self.internal_name          = internal_name
 		self.ipc: IPCServer         = None
 		self._is_main_instance      = is_main_instance
+		self._total_guilds          = []
 		self.__lock                 = startup_lock
 		self.__sub_has_gotten_lock  = False
 		self._at_limit:       list  = []
 		self._at_panic_limit: list  = []
+		# DONT TOUCH - WILL DEFINITELY BREAK BOT #
 
 		print("Done __INIT__, waiting for ON_READY")
 
@@ -187,6 +191,11 @@ class LanaAR(AutoShardedClient):
 		self.__print("Downloaded avatar data.")
 
 	def dispatch(self, event: str, *args: tuple) -> None:
+		"""Dispatch an event internally
+
+		Args:
+			event (str): Event name
+		"""		
 		if event == "ready":
 			return task.run_in_background(self.on_ready())
 
@@ -195,21 +204,26 @@ class LanaAR(AutoShardedClient):
 			message = args[0]
 			if not hasattr(message, "guild") or message.guild == None: # DMs not allowed
 				return
+			
+			# This is private code, you will have to implement this yourself.
 			if message.guild.id in self._at_limit:
 				return
-			if antilock and antilock.overloaded(self, message): # This is private code, you will have to implement this yourself.
+			elif antilock and antilock.overloaded(self, message):
 				return
 
-		self.event_manager.dispatcher(event, *args if args else ())
-		return super().dispatch(event, *args if args else ())
+		self.event_manager.dispatcher(event, *args if args else ()) # Dispatch internally to discommand
+		return super().dispatch(event, *args if args else ()) # Dispatch normally to discord.py
 
 	async def on_ready(self):
 		'''Bot startup, sets uptime.'''
+		# This makes sure the main instance starts before the sub instances and that they start in order.
 		if not self._is_main_instance:
 			while not self.__sub_has_gotten_lock:
 				self.__lock.acquire()
 				self.__sub_has_gotten_lock = True
+
 		await self.wait_until_ready()
+		self._total_guilds += int(self.guilds)
 		
 		if self.internal_name == None:
 			await self.ipc.notify("[THREAD] SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
@@ -238,8 +252,11 @@ class LanaAR(AutoShardedClient):
 			await self.syncer(self.db, [x.id for x in self.guilds])
 			print("DB Sync'd")
 
+		# Download the avatar data for cache
 		if not self.avatar_data:
 			task.run_in_background(self.download_avatar_data())
+
+		# Load the cogs
 		if not self.loaded_cogs:
 			self.__print("Loadings cogs and events...")
 			self.loaded_cogs = True
@@ -248,6 +265,7 @@ class LanaAR(AutoShardedClient):
 			self.__print("Updating bots internal command list...")
 			self.cog_manager.update_all_commands()
 			self.__print("Command list ready.")
+		# Cogs were loaded already
 		else:
 			if self._is_main_instance:
 				print("Bot reconnected.")
@@ -258,11 +276,13 @@ class LanaAR(AutoShardedClient):
 		if not hasattr(self, 'uptime'):  # Track Uptime
 			self.uptime = datetime.datetime.utcnow()
 		
+		# Update the status
 		try:
 			await self.change_presence(status=discord.Status.online, activity=discord.Game(f"with {len(list(self.get_all_members()))} foxes | lana help"))
 		except ConnectionResetError:
 			self.__print("ConnectionResetError while changing status.")
 
+		# Send the ready message once the main instance is ready.
 		if self._is_main_instance:
 			e = await embed.build_embed("Bot connected to discord.")
 			e.add_field(name="Guilds", value=len(self.guilds))
@@ -274,13 +294,16 @@ class LanaAR(AutoShardedClient):
 				self.__print(f"Error while sending startup message: {e}")
 			if self._is_main_instance and self.__lock != None:
 				self.__lock.release()
+		# Or notify the main cluster if its a sub instance
 		else:
 			if not len(self.guilds) == 0:
 				await self.ipc.sync()
 			self.__lock.release()
 			await self.ipc.notify("[THREAD] Sub instance started.")
 
-	def on_shutdown(self, *args):
+	async def on_shutdown(self, *args):
+		if self._is_main_instance:
+			await self.ipc.cleanup_before_exit()
 		self.db.pool.close()
 		exit(0)
 
@@ -305,9 +328,14 @@ class LanaAR(AutoShardedClient):
 			return prefixes
 
 if __name__ == "__main__":
+	# Create the bot Object
 	lana = LanaAR()
+
+	# Try loading the private panel DB (Private code for unrelated stuff i wanted to integrate with my bot)
 	try:
 		lana.panel = db.DB(db.mariadb_pool(1, "private/config/private_db.json"))
 	except FileNotFoundError:
 		pass
+
+	# Run the bot
 	lana.run(lana.config.token)

@@ -90,10 +90,10 @@ class IPCClient:
 		"""		
 		await self.send(self.connection, "notify", {"args": message})
 
-	async def sync(self):
-		"""Sync all bot instances and shards with the Cluster to update the Database.
+	async def sync_guilds(self):
+		"""Sync all bot instances and shards with the Cluster to update the Guilds Table in the Database.
 		"""		
-		await self.send(self.connection, "db_sync", {"args": [x.id for x in self.client.guilds]})
+		await self.send(self.connection, "guild_sync", {"guilds": [x.id for x in self.client.guilds]})
 
 	async def error(self, error):
 		"""Notify the Cluster of an error.
