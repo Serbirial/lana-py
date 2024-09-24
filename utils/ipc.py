@@ -26,6 +26,7 @@ class IPCClient:
 		if connection == None:
 			while self.connection == None: # backup
 				await asyncio.sleep(0.5)
+			connection = self.connection
 		await connection.send(format_outgoing_event(event_name, event_data))
 
 	async def recv(self, connection):
