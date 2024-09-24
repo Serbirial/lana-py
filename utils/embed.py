@@ -136,6 +136,20 @@ async def add_member_difference_fields(embed: discord_embed, before: Member, aft
 			embed.add_field(name=f"User has been timed out", value=f"User: {before.mention}", inline=False)
 		elif after.is_timed_out() == False:
 			embed.add_field(name=f"User timeout has been removed", value=f"User: {before.mention}", inline=False)
-
+	elif before.activities != after.activities or after.activities != before.activities:
+		embed.set_author(name=before.display_name, icon_url=before.avatar.url)
+		embed.add_field(name="User has changed their status", value=f"User: {before.mention}", inline=False)
+		for activity in before.activities:
+			if activity not in after.activities:
+				embed.add_field(name=f"Status lost", value=f"Type: {activity.type}\nContent: {activity.name}", inline=False)
+		for activity in after.activities:
+			if activity not in before.activities:
+				embed.add_field(name=f"Status gained", value=f"Type: {activity.type}\nContent: {activity.name}", inline=False)
+	elif before.banner.url != after.banner.url or before.banner != after.banner: # NOTE: This might need client.fetch_user to get the url or even detect changes (? might need to cache old urls)
+		embed.set_author(name=before.display_name, icon_url=after.banner.url)
+		embed.add_field(name="User has changed their banner", value=f"User: {before.mention}", inline=False)
+	
+	elif before.raw_status != after.raw_status: # Dont log users going online and offline, thats useless and wastes processing power and API calls.
+		pass
 	else:
 		embed.add_field(name="Unrecognized change in member update event", value="Please notify the developers of this, preferribly with a explanation of what changed, or a screenshot of audit logs.")
