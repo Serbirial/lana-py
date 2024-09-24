@@ -96,6 +96,19 @@ class Moderation(cogs.Cog):
 		await ctx.send(default.actionmessage("banned"))
 
 	@commands.command()
+	async def banid(self, bot, ctx, member: int = None, reason: str = None):
+		""" Bans a user from the current server with only ID, for use in pre-banning or banning a user who left. """
+		await permissions.check_permissions(ctx, ban_members=True)
+		if checks.strict_actions(ctx):
+			checks.is_known_mod(ctx, ctx.author.id)
+		if member is None:
+			return await ctx.send("You need to give the ID of the person to ban.")
+		member = await bot.converter.integer(ctx, member)
+
+		await ctx.guild.ban(discord.Object(id=int(member)), reason=default.responsible(ctx.author, reason))
+		await ctx.send(default.actionmessage("banned"))
+
+	@commands.command()
 	async def massban(self, bot, ctx, reason, members: int):
 		""" Mass bans multiple members from the server. [IDS ONLY]"""
 		await permissions.check_permissions(ctx, ban_members=True)
