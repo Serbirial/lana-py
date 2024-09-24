@@ -223,7 +223,7 @@ class LanaAR(AutoShardedClient):
 				self.__sub_has_gotten_lock = True
 
 		await self.wait_until_ready()
-		self._total_guilds += int(list(self.guilds))
+		self._total_guilds += int(len(self.guilds))
 		
 		if self.internal_name == None:
 			await self.ipc.notify("[THREAD] SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
