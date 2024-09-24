@@ -22,7 +22,10 @@ class IPCClient:
 			connection (websocket_connection): The websocket connection.
 			event_name (str): The event name.
 			event_data (dict, optional): The event data. Defaults to {}.
-		"""		
+		"""
+		if connection == None:
+			while self.connection == None: # backup
+				await asyncio.sleep(0.5)
 		await connection.send(format_outgoing_event(event_name, event_data))
 
 	async def recv(self, connection):
@@ -61,7 +64,7 @@ class IPCClient:
 		"""		
 		try:
 			async with websockets.connect(self.make_uri()) as connection:
-				self.connection = connection 
+				self.connection = connection
 				if await self.auth_handshake(connection):
 					while connection.closed != True:
 						event, data = await self.recv(connection)
@@ -71,7 +74,8 @@ class IPCClient:
 
 	async def start(self):
 		"""Starts the IPC client.
-		"""		
+		"""
+		print("Starting sub IPC")
 		await self.connection_handler()
 
 	def make_uri(self) -> str:
