@@ -90,11 +90,7 @@ class Moderation(cogs.Cog):
 			checks.is_known_mod(ctx, ctx.author.id)
 		if member is None:
 			return await ctx.send("You need to mention the person to ban.")
-		try:
-			member = await bot.converter.member(ctx, member)
-		except:
-			member = await bot.converter.integer(ctx, member)
-
+		member = await bot.converter.member(ctx, member)
 
 		await ctx.guild.ban(member, reason=default.responsible(ctx.author, reason))
 		await ctx.send(default.actionmessage("banned"))
