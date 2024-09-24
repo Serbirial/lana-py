@@ -297,7 +297,7 @@ class LanaAR(AutoShardedClient):
 		# Or notify the main cluster if its a sub instance
 		else:
 			if not len(self.guilds) == 0:
-				await self.ipc.sync()
+				await self.ipc.sync_guilds()
 			self.__lock.release()
 			await self.ipc.notify("[THREAD] Sub instance started.")
 
