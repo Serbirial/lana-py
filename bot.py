@@ -228,7 +228,11 @@ class LanaAR(AutoShardedClient):
 				self.ipc.VALID_EVENTS["notify"] = self.__print
 				self.ipc.VALID_EVENTS["db_sync"] = self.syncer
 
-		if not self._is_main_instance:
+		else:
+			self.error_channel = None
+			# Start the IPC client
+			self.ipc = ipc.IPCClient(self, "localhost", 62435)
+			self.ipc_task = task.create_task(self.ipc.start())
 			while not self.__sub_has_gotten_lock:
 				self.__lock.acquire()
 				self.__sub_has_gotten_lock = True
@@ -239,12 +243,6 @@ class LanaAR(AutoShardedClient):
 		if self.internal_name == None:
 			await self.ipc.notify("[THREAD] SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
 			exit(0)
-
-		else:
-			self.error_channel = None
-			# Start the IPC client
-			self.ipc = ipc.IPCClient(self, "localhost", 62435)
-			self.ipc_task = task.create_task(self.ipc.start())
 
 		# Sync the DB
 		if self._is_main_instance:
