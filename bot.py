@@ -217,6 +217,17 @@ class LanaAR(AutoShardedClient):
 	async def on_ready(self):
 		'''Bot startup, sets uptime.'''
 		# This makes sure the main instance starts before the sub instances and that they start in order.
+		if self._is_main_instance:
+			# Set the error channel.
+			self.error_channel = self.get_channel(self.config.error_channel)
+			# Check for IPC (bot is ran clustered and is main instance)
+			if self.ipc != None:
+				# Start the IPC server.
+				self.ipc_task = task.create_task(self.ipc.start())
+				# Set IPC event functions.
+				self.ipc.VALID_EVENTS["notify"] = self.__print
+				self.ipc.VALID_EVENTS["db_sync"] = self.syncer
+
 		if not self._is_main_instance:
 			while not self.__sub_has_gotten_lock:
 				self.__lock.acquire()
@@ -228,17 +239,6 @@ class LanaAR(AutoShardedClient):
 		if self.internal_name == None:
 			await self.ipc.notify("[THREAD] SUB INSTANCE DIDNT GET INTERNAL NAME - SOMETHING IS FUCKED")
 			exit(0)
-
-		if self._is_main_instance:
-			# Set the error channel.
-			self.error_channel = self.get_channel(self.config.error_channel)
-			# Check for IPC (bot is ran clustered and is main instance)
-			if self.ipc != None:
-				# Start the IPC server.
-				self.ipc_task = task.create_task(self.ipc.start())
-				# Set IPC event functions.
-				self.ipc.VALID_EVENTS["notify"] = self.__print
-				self.ipc.VALID_EVENTS["db_sync"] = self.syncer
 
 		else:
 			self.error_channel = None
