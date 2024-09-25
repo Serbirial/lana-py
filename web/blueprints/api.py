@@ -249,7 +249,7 @@ async def autorole_role(request, guild):
 
 	# FIXME: check if its an actual role
 
-	request.app.ctx.db.execute("UPDATE autorole SET role = ? WHERE guild = ?", _json["op"], guild)
+	request.app.ctx.db.execute("UPDATE autorole SET role_id = ? WHERE guild = ?", _json["op"], guild)
 
 	return json({"op": True})
 
