@@ -214,7 +214,7 @@ async def welcome_message(request, guild):
 @blueprint.post("/welcome/<guild:int>/embed", strict_slashes=True)
 async def welcome_embed(request, guild):
 
-	check = request.app.ctx.db.query_row("SELECT enabled FROM welcome WHERE guild = ?", guild)
+	check = request.app.ctx.db.query_row("SELECT embed FROM welcome WHERE guild = ?", guild)
 	if check == None:
 		await populate_table(request.app.ctx.db, "welcome", guild)
 		return json({"op": 2}) # 2 is code for 'populated', aka first run.
