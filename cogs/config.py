@@ -369,7 +369,7 @@ class Config(cogs.Cog):
 		''' Command group that configures the auto-role. '''
 		await ctx.show_help(self)
 	
-	@welcome.command("toggle", name="toggle")
+	@autorole.command("toggle", name="toggle")
 	async def autoroletoggle(self, bot, ctx):
 		''' Toggle auto-role on/off. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
@@ -382,7 +382,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@welcome.command("role", name="role")
+	@autorole.command("role", name="role")
 	async def autorolerole(self, bot, ctx, role: discord.Role):
 		''' Change the auto-role's role. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
