@@ -376,8 +376,8 @@ class Config(cogs.Cog):
 		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
 
 		actions = {
-			True: ctx.send(f"{ctx.command.parent.endpoint.capitalize()} has been enabled."),
-			False: ctx.send(f"{ctx.command.parent.endpoint.capitalize()} has been disabled."),
+			0: ctx.send(f"{ctx.command.parent.endpoint.capitalize()} has been enabled."),
+			1: ctx.send(f"{ctx.command.parent.endpoint.capitalize()} has been disabled."),
 		}
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
