@@ -274,7 +274,7 @@ class Config(cogs.Cog):
 			2: ctx.send(f"{ctx.command.parent.endpoint.capitalize()} config has been populated, please run any commands again.")}
 		
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
-		await connection.post(require_json=True, json={"op": None})
+		await connection.post(require_json=True, json={"op": channel.id})
 
 
 	@welcome.command("message", name="message")
