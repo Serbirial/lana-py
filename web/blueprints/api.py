@@ -211,8 +211,8 @@ async def welcome_message(request, guild):
 
 	return json({"op": True})
 
-@blueprint.post("/welcome/<guild:int>/embed", strict_slashes=True)
-async def welcome_embed(request, guild):
+@blueprint.post("/welcome/<guild:int>/embedded", strict_slashes=True)
+async def welcome_embedded(request, guild):
 
 	check = request.app.ctx.db.query_row("SELECT embed FROM welcome WHERE guild = ?", guild)
 	if check == None:

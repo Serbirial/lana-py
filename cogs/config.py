@@ -248,7 +248,7 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-	@welcome.command("embed", name="embed")
+	@welcome.command("embedded", name="embed")
 	async def welcomeembed(self, bot, ctx):
 		''' Toggle if the join message is an embed or not. '''
 		await permissions.check_permissions(ctx, manage_roles=True)
