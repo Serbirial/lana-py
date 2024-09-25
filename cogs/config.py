@@ -363,7 +363,40 @@ class Config(cogs.Cog):
 		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
 		await connection.post(require_json=True, json={"op": None})
 
-# TODO: AUTOROLE, REACTIONROLE
+
+	@commands.group("autorole")
+	async def autorole(self, bot, ctx):
+		''' Command group that configures the auto-role. '''
+		await ctx.show_help(self)
+	
+	@welcome.command("toggle", name="toggle")
+	async def autoroletoggle(self, bot, ctx):
+		''' Toggle auto-role on/off. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+
+		actions = {
+			True: ctx.send(f"{ctx.command.parent.endpoint.capitalize()} has been enabled."),
+			False: ctx.send(f"{ctx.command.parent.endpoint.capitalize()} has been disabled."),
+		}
+		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
+		await connection.post(require_json=True, json={"op": None})
+
+	@welcome.command("role", name="role")
+	async def autorolerole(self, bot, ctx, role: discord.Role):
+		''' Change the auto-role's role. '''
+		await permissions.check_permissions(ctx, manage_roles=True)
+		URI = f"{bot.config.api_url}/{ctx.command.parent.endpoint}/{ctx.guild.id}/{self.endpoint}"
+		role = await bot.converter.role(ctx, role)
+
+		actions = {
+			True: ctx.send(f"{self.endpoint.capitalize()} has been set to {role.name}."),
+		}
+
+		connection = api.InternalApiConnection(ctx, URI).predefine_json_actions("op", actions).expect_status_codes([200]).set_default_action(ctx.send("The API sent back an un-expected response."))
+		await connection.post(require_json=True, json={"op": role.id})
+
+# TODO: REACTIONROLE
 
 
 def export(bot):
