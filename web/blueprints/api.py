@@ -219,7 +219,7 @@ async def welcome_embed(request, guild):
 		await populate_table(request.app.ctx.db, "welcome", guild)
 		return json({"op": 2}) # 2 is code for 'populated', aka first run.
 
-	embed = request.app.ctx.db.execute("SELECT embed FROM welcome WHERE guild = ?", guild)
+	embed = request.app.ctx.db.query_row("SELECT embed FROM welcome WHERE guild = ?", guild)
 	if embed == 0:
 		request.app.ctx.db.execute("UPDATE embed SET enabled = 1 WHERE guild=?", guild)
 	elif embed == 1:
