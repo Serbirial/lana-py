@@ -145,7 +145,7 @@ async def add_member_difference_fields(embed: discord_embed, before: Member, aft
 		for activity in after.activities:
 			if activity not in before.activities:
 				embed.add_field(name=f"Status gained", value=f"Type: {activity.type}\nContent: {activity.name}", inline=False)
-	elif before.banner.url != after.banner.url or before.banner != after.banner: # NOTE: This might need client.fetch_user to get the url or even detect changes (? might need to cache old urls)
+	elif before.banner != after.banner: # NOTE: This might need client.fetch_user to get the url or even detect changes (? might need to cache old urls)
 		embed.set_author(name=before.display_name, icon_url=after.banner.url)
 		embed.add_field(name="User has changed their banner", value=f"User: {before.mention}", inline=False)
 	
