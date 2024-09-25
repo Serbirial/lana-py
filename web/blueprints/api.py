@@ -211,8 +211,8 @@ async def welcome_message(request, guild):
 
 	return json({"op": True})
 
-@blueprint.post("/welcome/<guild:int>/embedded", strict_slashes=True)
-async def welcome_embedded(request, guild):
+@blueprint.post("/welcome/<guild:int>/embed", strict_slashes=True)
+async def welcome_embed(request, guild):
 
 	check = request.app.ctx.db.query_row("SELECT embed FROM welcome WHERE guild = ?", guild)
 	if check == None:
@@ -221,9 +221,9 @@ async def welcome_embedded(request, guild):
 
 	embed = request.app.ctx.db.query_row("SELECT embed FROM welcome WHERE guild = ?", guild)
 	if embed == 0:
-		request.app.ctx.db.execute("UPDATE embed SET enabled = 1 WHERE guild=?", guild)
+		request.app.ctx.db.execute("UPDATE welcome SET enabled = 1 WHERE guild=?", guild)
 	elif embed == 1:
-		request.app.ctx.db.execute("UPDATE embed SET enabled = 0 WHERE guild=?", guild)
+		request.app.ctx.db.execute("UPDATE welcome SET enabled = 0 WHERE guild=?", guild)
 	
 	return json({"op": embed}) # Return the toggled state from before.
 
