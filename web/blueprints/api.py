@@ -13,7 +13,8 @@ table_data = { # Contains queries to populate tables based on their name
 	"panic":   		      "INSERT INTO panic (guild, enabled) VALUES (?,0)",
 	"antialt": 		      "INSERT INTO antialt (guild, enabled) VALUES (?,0)",
 	"premium_points":     "INSERT INTO premium_points (user_id, points) VALUES (?,0)",
-	"strict_mod_actions": "INSERT INTO strict_mod_actions (guild, enabled, premium) VALUES (?,0,0)" 
+	"strict_mod_actions": "INSERT INTO strict_mod_actions (guild, enabled, premium) VALUES (?,0,0)", 
+	"autorole": 		  "INSERT INTO autorole (guild, role_id) VALUES (?,0)"
 }
 async def populate_table(db, table, *args):
 	db.execute(table_data[table], *args)
@@ -232,7 +233,11 @@ async def welcome_embed(request, guild):
 @blueprint.post("/autorole/<guild:int>/toggle", strict_slashes=True)
 async def autorole_toggle(request, guild):
 
-	check = request.app.ctx.db.execute("SELECT enabled FROM autorole WHERE guild = ?", guild)
+	check = request.app.ctx.db.query_row("SELECT enabled FROM autorole WHERE guild = ?", guild)
+	if check == None:
+		await populate_table(request.app.ctx.db, "autorole", guild)
+		return json({"op": 2}) # 2 is code for 'populated', aka first run.
+
 	if check == 0:
 		request.app.ctx.db.execute("UPDATE autorole SET enabled = 1 WHERE guild=?", guild)
 	elif check == 1:
@@ -247,7 +252,10 @@ async def autorole_role(request, guild):
 	if not _json or not "op" in _json:
 		return json({"op": "Missing JSON."})
 
-	# FIXME: check if its an actual role
+	check = request.app.ctx.db.query_row("SELECT enabled FROM autorole WHERE guild = ?", guild)
+	if check == None:
+		await populate_table(request.app.ctx.db, "autorole", guild)
+		return json({"op": 2}) # 2 is code for 'populated', aka first run.
 
 	request.app.ctx.db.execute("UPDATE autorole SET role_id = ? WHERE guild = ?", _json["op"], guild)
 
